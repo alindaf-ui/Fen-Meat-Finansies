@@ -1,1261 +1,1916 @@
 <!DOCTYPE html>
-<html lang="af">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Fen Meat · Finansies</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GRG Stock App</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --bg:#eef0eb;--surface:#f7f8f5;--card:#ffffff;--border:#d0d6c9;
-    --accent:#4a9e3a;--accent2:#b8893a;--text:#1f2a1c;--muted:#6b7a64;
-    --danger:#d63a3a;--blue:#2a7ec2;--purple:#7a4ec2;--radius:10px;
-    --font:'Segoe UI',system-ui,sans-serif;
+  :root{
+    --bg:#F6F8F4;
+    --surface:#FFFFFF;
+    --surface-2:#EDF2E9;
+    --leaf:#7B7FD4;
+    --leaf-dim:#D3D3FF;
+    --resin:#B5790A;
+    --cream:#1B2420;
+    --muted:#5C6B61;
+    --ok:#2E7D4F;
+    --low:#B5790A;
+    --reorder:#C0392B;
+    --radius:14px;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:17px;min-height:100vh;padding-bottom:40px;}
-  header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 0;position:sticky;top:0;z-index:100;}
-  header .brand{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
-  header h1{font-size:22px;color:var(--accent);font-weight:700;}
-  .tabs{display:flex;margin-top:10px;}
-  .tab-btn{flex:1;padding:11px 2px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;}
-  .tab-btn.active{color:var(--accent);border-bottom:2px solid var(--accent);}
-  .tab-content{display:none;}.tab-content.active{display:block;}
-  .section-title{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:16px 12px 6px;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:0 12px 10px;padding:14px;}
-  .card h3{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px;letter-spacing:.5px;}
-  label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px;}
-  input[type=number],input[type=text],textarea,select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:17px;padding:11px 12px;margin-bottom:10px;outline:none;-webkit-appearance:none;appearance:none;}
-  input:focus,select:focus{border-color:var(--accent);}
-  textarea{resize:vertical;min-height:56px;font-family:var(--font);}
-  .btn{display:block;width:100%;padding:14px;border:none;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:8px;}
-  .btn-primary{background:var(--accent);color:#0f1a14;}
-  .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
-  .btn-secondary.active-choice{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
-  .btn:active{opacity:.8;transform:scale(.98);}
-  .btn-sm{padding:8px 14px;font-size:13px;width:auto;display:inline-block;margin-bottom:0;}
-  .piggy{background:linear-gradient(135deg,#1e3320,#243d1a);border:1px solid var(--accent);border-radius:var(--radius);margin:12px 12px 0;padding:12px 16px;display:flex;align-items:center;gap:12px;}
-  .piggy .icon{font-size:28px;}.piggy .label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}.piggy .amount{font-size:26px;font-weight:700;color:var(--accent);}
-  .bucket-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .bucket-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
-  .bucket-item .b-label{font-size:12px;color:var(--muted);margin-bottom:3px;}.bucket-item .b-amount{font-size:20px;font-weight:700;}
-  .bucket-blikkie .b-amount{color:var(--accent2);}.bucket-stock .b-amount{color:var(--accent);}.bucket-unexpected .b-amount{color:var(--danger);}
-  .bar-bg{background:var(--surface);border-radius:6px;height:10px;overflow:hidden;border:1px solid var(--border);}
-  .bar-fill{height:100%;border-radius:6px;transition:width .4s;background:var(--accent);}
-  .bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px;}
-  .month-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-  .ms-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
-  .ms-label{font-size:11px;color:var(--muted);margin-bottom:3px;}.ms-val{font-size:19px;font-weight:700;}
-  .ms-green{color:var(--accent);}.ms-red{color:var(--danger);}.ms-gold{color:var(--accent2);}.ms-blue{color:var(--blue);}.ms-purple{color:var(--purple);}
-  .day-badge{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;margin-left:8px;font-weight:600;}
-  .day-friday{background:#3d2e0a;color:var(--accent2);}.day-monday{background:#1a3060;color:var(--blue);}.day-other{background:#1e2d18;color:var(--muted);}
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end;justify-content:center;}
-  .modal-overlay.open{display:flex;}
-  .modal{background:var(--card);border-radius:14px 14px 0 0;border:1px solid var(--border);padding:18px 16px 32px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
-  .modal h2{font-size:17px;margin-bottom:14px;}.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
-  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#243d1a;border:1px solid var(--accent);color:var(--accent);padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;display:none;z-index:999;white-space:nowrap;}
-  .history-entry{border-bottom:1px solid var(--border);padding:11px 0;}.history-entry:last-child{border-bottom:none;}
-  .history-date{font-size:13px;color:var(--muted);margin-bottom:5px;}
-  .history-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:2px;}
-  .history-total{font-weight:700;color:var(--accent);}
-  .empty-state{text-align:center;color:var(--muted);font-size:13px;padding:20px 0;}
-  .rek-list{border-top:1px solid var(--border);margin-top:8px;padding-top:6px;}
-  .rek-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
-  .rek-row:last-child{border-bottom:none;}
-  .rek-paid{color:var(--accent);}.rek-unpaid{color:var(--text);}
-  .rek-amt-input{width:110px;text-align:right;font-size:13px;font-weight:600;margin-bottom:0;padding:6px 8px;}
-  .week-op-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
-  .week-op-row:last-child{border-bottom:none;}
-  .week-op-date{font-size:13px;color:var(--text);font-weight:600;}
-  .week-op-sub{font-size:11px;color:var(--muted);margin-top:1px;}
-  .week-op-amt{font-size:15px;font-weight:700;color:var(--accent);}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--cream);
+    font-family:'Helvetica Neue',Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  body{display:flex; flex-direction:column; min-height:100vh;}
 
-  /* ROETE */
-  .roete-list-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:0 12px 10px;padding:8px 14px;}
-  .roete-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
-  .roete-row:last-child{border-bottom:none;}
-  .roete-naam-inp-sm{flex:1.2;font-size:14px;font-weight:600;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 10px;color:var(--text);margin-bottom:0;}
-  .roete-kontant-inp{flex:1;font-size:15px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 10px;color:var(--accent);margin-bottom:0;text-align:right;}
-  .add-roete-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer;margin:8px 0 10px;}
+  header{
+    padding:18px 16px 14px;
+    background:linear-gradient(180deg, #FFFFFF 0%, #F0F5ED 100%);
+    border-bottom:1px solid var(--leaf-dim);
+    position:sticky; top:0; z-index:50;
+  }
+  .brand{display:flex; align-items:baseline; gap:8px;}
+  .brand .mark{font-size:23.0px; font-weight:800; letter-spacing:0.5px;}
+  .brand .mark span{color:var(--leaf);}
+  .brand .sub{font-size:12.5px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase;}
+  .status-strip{display:flex; gap:8px; margin-top:12px; overflow-x:auto;}
+  .pill{
+    flex:1; min-width:0; padding:8px 10px; border-radius:10px; background:var(--surface);
+    text-align:center; border:1px solid var(--leaf-dim);
+  }
+  .pill .n{font-size:20.5px; font-weight:800; display:block;}
+  .pill .l{font-size:11.0px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px;}
+  .pill.ok .n{color:var(--ok);}
+  .pill.low .n{color:var(--low);}
+  .pill.reorder .n{color:var(--reorder);}
 
-  /* MAANDAG */
-  .step-result{border-radius:10px;padding:13px;text-align:center;margin:0 12px 10px;}
-  .step-result-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
-  .step-result-val{font-size:24px;font-weight:700;}
-  .step-result-sub{font-size:11px;margin-top:3px;}
-  .step-card{margin:0 12px 10px;}
-  .step-row{display:flex;justify-content:space-between;align-items:center;}
-  .step-row-label{font-size:13px;font-weight:600;}
-  .step-row-sub{font-size:11px;color:var(--muted);margin-top:1px;}
-  .step-input{width:115px;text-align:right;margin-bottom:0;font-weight:600;}
-  .sup-card{margin:0 12px 8px;padding:10px 12px;}
-  .sup-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-  .sup-name{font-size:13px;font-weight:700;}
-  .sup-total{font-size:14px;font-weight:700;color:var(--danger);}
-  .faktuur-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
-  .faktuur-row.paid{opacity:.55;}
-  .faktuur-row.paid .faktuur-nr-input,.faktuur-row.paid .faktuur-input{text-decoration:line-through;}
-  .faktuur-paid-toggle{cursor:pointer;font-size:15px;width:18px;text-align:center;flex-shrink:0;}
-  .faktuur-num{font-size:11px;color:var(--muted);width:16px;}
-  .faktuur-nr-input{flex:1;margin-bottom:0;font-size:13px;padding:7px 9px;color:var(--text);}
-  .faktuur-input{flex:1;margin-bottom:0;font-size:13px;padding:7px 9px;color:var(--danger);}
-  .faktuur-del{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px;}
-  .add-fak-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:7px;background:transparent;border:1px dashed var(--border);border-radius:8px;font-size:12px;color:var(--blue);cursor:pointer;margin-top:2px;}
-  .sup-grand-total{display:flex;justify-content:space-between;align-items:center;margin:0 12px 10px;padding:11px 14px;background:rgba(224,85,85,.08);border:1px solid var(--danger);border-radius:10px;}
-  .bucket-pct-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .bp-card{border-radius:10px;padding:10px;text-align:center;}
-  .bp-label{font-size:11px;color:var(--muted);margin-bottom:2px;}
-  .bp-pct{font-size:10px;margin-bottom:3px;}
-  .bp-amt{font-size:17px;font-weight:700;}
+  nav.tabs{
+    display:flex; background:var(--surface); border-bottom:1px solid var(--leaf-dim);
+    position:sticky; top:96px; z-index:49;
+  }
+  nav.tabs button{
+    flex:1; padding:13px 2px; background:none; border:none; color:var(--muted);
+    font-size:12.5px; font-weight:700; letter-spacing:0.2px; text-transform:uppercase;
+    border-bottom:3px solid transparent;
+  }
+  nav.tabs button.active{color:var(--leaf); border-bottom-color:var(--leaf);}
 
-  /* SYNC */
-  #sync-indicator{position:fixed;top:8px;right:8px;font-size:10px;padding:3px 9px;border-radius:12px;z-index:500;font-weight:600;display:none;}
-  #sync-indicator.busy{display:block;background:#3d2e0a;color:var(--accent2);}
-  #sync-indicator.ok{display:block;background:#1e2d18;color:var(--accent);}
-  #sync-indicator.err{display:block;background:#3d1a1a;color:var(--danger);}
+  main{flex:1; padding:14px 14px 90px;}
+  .view{display:none;}
+  .view.active{display:block;}
 
-  @media(min-width:480px){.card,.piggy,.step-result,.step-card,.sup-card,.sup-grand-total{margin-left:auto;margin-right:auto;max-width:460px;}.section-title{max-width:460px;margin-left:auto;margin-right:auto;}}
+  .search-row{display:flex; gap:8px; margin-bottom:10px;}
+  input, select, textarea{
+    width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--leaf-dim);
+    background:var(--surface); color:var(--cream); font-size:18px;
+  }
+  input::placeholder{color:var(--muted);}
+  .filter-row{display:flex; gap:6px; margin-bottom:12px; overflow-x:auto;}
+  .chip{
+    padding:7px 13px; border-radius:20px; border:1px solid var(--leaf-dim); background:var(--surface);
+    color:var(--muted); font-size:15px; font-weight:700; white-space:nowrap;
+  }
+  .chip.active{background:var(--leaf-dim); color:var(--cream); border-color:var(--leaf);}
+
+  .card{
+    background:var(--surface); border:1px solid var(--leaf-dim); border-radius:var(--radius);
+    padding:13px 14px; margin-bottom:9px;
+  }
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .card-title{font-size:18px; font-weight:700; line-height:1.3;}
+  .card-sub{font-size:15px; color:var(--muted); margin-top:2px;}
+  .badge{
+    font-size:11.5px; font-weight:800; padding:4px 9px; border-radius:20px; white-space:nowrap;
+    text-transform:uppercase; letter-spacing:0.3px;
+  }
+  .badge.OK{background:rgba(63,168,106,0.18); color:var(--ok);}
+  .badge.LOW{background:rgba(217,164,65,0.18); color:var(--low);}
+  .badge.REORDER{background:rgba(217,83,79,0.18); color:var(--reorder);}
+  .card-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:11px;}
+  .stat{text-align:center;}
+  .stat .v{font-size:17px; font-weight:700;}
+  .stat .k{font-size:10.5px; color:var(--muted); text-transform:uppercase; margin-top:2px;}
+  .stat.margin-low .v{color:var(--reorder);}
+
+  .empty{text-align:center; padding:40px 20px; color:var(--muted); font-size:16px;}
+  .empty b{display:block; color:var(--cream); font-size:18px; margin-bottom:6px;}
+
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:15px; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.3px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  .btn{
+    width:100%; padding:14px; border-radius:12px; border:none; font-weight:800; font-size:18px;
+    letter-spacing:0.3px; cursor:pointer;
+  }
+  .btn-primary{background:#7B7FD4; color:#FFFFFF;}
+  .btn-primary:active{background:#5c60b0;}
+  .btn-secondary{background:var(--surface-2); color:var(--cream); border:1px solid var(--leaf-dim);}
+  .btn:disabled{opacity:0.5;}
+
+  .sale-summary{
+    background:var(--surface-2); border-radius:12px; padding:14px; margin:14px 0;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .sale-summary .lbl{font-size:15px; color:var(--muted);}
+  .sale-summary .total{font-size:25.5px; font-weight:800; color:var(--resin);}
+
+  .toast{
+    position:fixed; bottom:20px; left:16px; right:16px; padding:14px 16px; border-radius:12px;
+    background:var(--leaf); color:#FFFFFF; font-weight:700; font-size:15.5px; text-align:center;
+    transform:translateY(120px); transition:transform 0.3s ease; z-index:200;
+  }
+  .toast.show{transform:translateY(0);}
+  .toast.error{background:var(--reorder); color:#fff;}
+
+  .spinner{
+    width:28px; height:28px; border:3px solid var(--leaf-dim); border-top-color:var(--leaf);
+    border-radius:50%; animation:spin 0.8s linear infinite; margin:30px auto;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .sku-tag{font-size:11.5px; color:var(--leaf); font-weight:700; letter-spacing:0.5px;}
+
+  .stock-adjust{
+    display:flex; align-items:center; justify-content:center; gap:10px; margin-top:11px;
+    padding-top:11px; border-top:1px solid var(--leaf-dim);
+  }
+  .stock-adjust .step-btn{
+    width:36px; height:36px; border-radius:10px; border:1px solid var(--leaf-dim);
+    background:var(--surface-2); color:var(--cream); font-size:20.5px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+  }
+  .stock-adjust .step-btn:active{background:var(--leaf-dim);}
+  .stock-adjust input{
+    width:64px; text-align:center; padding:8px 4px; font-size:18.5px; font-weight:700;
+  }
+  .stock-adjust .save-btn{
+    flex:1; max-width:110px; padding:9px 10px; border-radius:10px; border:none;
+    background:var(--leaf); color:#FFFFFF; font-weight:800; font-size:14.5px;
+    visibility:hidden; opacity:0; transition:opacity 0.15s ease;
+  }
+  .stock-adjust .save-btn.visible{visibility:visible; opacity:1;}
+  .stock-adjust .save-btn:disabled{opacity:0.5;}
+
+  .invoice-line{
+    background:var(--surface); border:1px solid var(--leaf-dim); border-radius:12px;
+    padding:12px 13px; margin-bottom:9px;
+  }
+  .invoice-line-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .invoice-line-title{font-size:15.5px; font-weight:700; line-height:1.3;}
+  .invoice-line-sub{font-size:12.5px; color:var(--muted); margin-top:1px;}
+  .remove-line{
+    background:none; border:none; color:var(--reorder); font-size:20.5px; font-weight:800;
+    padding:0 4px; line-height:1;
+  }
+  .invoice-line-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:10px;}
+  .invoice-line-grid .field{margin-bottom:0;}
+  .invoice-line-grid label{font-size:11.5px; margin-bottom:3px;}
+  .invoice-line-grid input, .invoice-line-grid select{padding:8px 8px; font-size:15.0px;}
+  .line-total{
+    margin-top:9px; padding-top:9px; border-top:1px solid var(--leaf-dim);
+    display:flex; justify-content:space-between; font-size:14.5px;
+  }
+  .line-total .lt-val{font-weight:800; color:var(--resin);}
+
+  .invoice-totals{
+    background:var(--surface-2); border-radius:12px; padding:14px 16px; margin:14px 0;
+  }
+  .totals-row{display:flex; justify-content:space-between; font-size:15.0px; color:var(--muted); padding:3px 0;}
+  .totals-row.grand{
+    font-size:20.5px; font-weight:800; color:var(--cream); border-top:1px solid var(--leaf-dim);
+    margin-top:6px; padding-top:9px;
+  }
+  .totals-row.grand span:last-child{color:var(--resin);}
+
+  .search-results{
+    background:var(--surface); border:1px solid var(--leaf-dim); border-radius:12px;
+    margin:-4px 0 14px; max-height:280px; overflow-y:auto;
+  }
+  .search-results.empty-state{padding:0; max-height:none; background:none; border:none; margin-bottom:0;}
+  .search-result-item{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:11px 13px; border-bottom:1px solid var(--leaf-dim);
+  }
+  .search-result-item:last-child{border-bottom:none;}
+  .search-result-item:active{background:var(--surface-2);}
+  .sr-info{min-width:0;}
+  .sr-name{font-size:15.5px; font-weight:700; line-height:1.3;}
+  .sr-meta{font-size:12.5px; color:var(--muted); margin-top:1px;}
+  .sr-price{font-size:15.0px; font-weight:700; color:var(--resin); white-space:nowrap;}
+  .sr-add{
+    background:var(--leaf); color:#FFFFFF; border:none; border-radius:8px;
+    width:30px; height:30px; font-size:20.5px; font-weight:800; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+  }
+  .search-hint{font-size:15px; color:var(--muted); text-align:center; padding:12px 0;}
 </style>
 </head>
 <body>
 
-<div id="sync-indicator">☁️ ...</div>
-
 <header>
-  <div class="brand">Fourforone (Pty) Ltd t/a</div>
-  <h1>Fen Meat 🥩</h1>
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('roete',this)">🚚 Roete</button>
-    <button class="tab-btn" onclick="showTab('maandag',this)">🏦 Maandag</button>
-    <button class="tab-btn" onclick="showTab('begroting',this)">📊 Begroting</button>
-    <button class="tab-btn" onclick="showTab('geskiedenis',this)">📅 Log</button>
+  <div class="brand">
+    <div class="mark">Garden<span>Route</span>Green</div>
+  </div>
+  <div class="sub">Stock App &middot; Mossel Bay</div>
+  <div class="status-strip">
+    <div class="pill"><span class="n" id="statTotal">–</span><span class="l">Products</span></div>
+    <div class="pill reorder"><span class="n" id="statReorder">–</span><span class="l">Reorder</span></div>
+    <div class="pill low"><span class="n" id="statLow">–</span><span class="l">Low Stock</span></div>
+    <div class="pill ok"><span class="n" id="statMargin">–</span><span class="l">Avg Margin</span></div>
   </div>
 </header>
 
-<!-- ══════════════ TAB 1: ROETE ══════════════ -->
-<div class="tab-content active" id="tab-roete">
-  <div class="section-title" style="padding-top:14px;">🚚 Roete Dagsluiting</div>
-  <div class="card" style="margin-top:0;padding:10px 14px;">
-    <label style="margin-bottom:4px;">Dag waarvoor jy intik:</label>
-    <select id="dag-keuse" onchange="onDagKeuseChange()" style="margin-bottom:0;font-weight:700;">
-      <option value="1">Maandag</option>
-      <option value="2">Dinsdag</option>
-      <option value="3">Woensdag</option>
-      <option value="4">Donderdag</option>
-      <option value="5">Vrydag</option>
-      <option value="6">Saterdag</option>
-      <option value="0">Sondag</option>
-    </select>
-  </div>
+<nav class="tabs">
+  <button class="active" data-view="stock">Stock</button>
+  <button data-view="sale">Log Sale</button>
+  <button data-view="reorder">Reorder</button>
+  <button data-view="finance">Finance</button>
+  <button data-view="price">Prices</button>
+  <button data-view="addproduct">+ Product</button>
+</nav>
 
-  <div class="roete-list-card" id="roetes-container"></div>
+<main>
 
-  <div class="card">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">💵 KONTANT TOTAAL</div>
-      <div style="font-size:24px;font-weight:700;color:var(--accent);" id="dag-kontant-totaal">R0</div>
+  <!-- STOCK VIEW -->
+  <section class="view active" id="view-stock">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Search product or SKU...">
     </div>
-  </div>
-
-  <div class="card">
-    <h3>📝 NOTAS</h3>
-    <textarea id="notes" placeholder="Opsioneel — roete notas, klant probleme, ens..."></textarea>
-    <button class="btn btn-primary" onclick="saveClosing()">💾 Stoor Dagsluiting</button>
-  </div>
-
-  <div class="section-title">📆 Week Tot Dusver</div>
-  <div class="card">
-    <div id="week-opsomming-list"></div>
-    <div style="background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:12px;text-align:center;margin-top:10px;">
-      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">📊 WEEK TOTAAL</div>
-      <div style="font-size:24px;font-weight:700;color:var(--accent);" id="week-opsomming-totaal">R0</div>
+    <div class="filter-row" id="supplierFilters"></div>
+    <div class="filter-row" id="statusFilters">
+      <div class="chip active" data-status="ALL">All</div>
+      <div class="chip" data-status="REORDER">Reorder</div>
+      <div class="chip" data-status="LOW STOCK">Low Stock</div>
+      <div class="chip" data-status="OK">OK</div>
     </div>
-  </div>
-</div>
+    <div id="stockList"></div>
+  </section>
 
-<!-- ══════════════ TAB 2: MAANDAG ══════════════ -->
-<div class="tab-content" id="tab-maandag">
-
-  <div class="section-title">🏦 Maandag Afrekening</div>
-  <div id="draf-indicator" style="display:none;margin:0 12px 8px;padding:8px 12px;background:rgba(126,200,80,.1);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--accent);text-align:center;">
-    💾 Outomaties gestoor — veilig as jy wegnavigeer
-  </div>
-
-  <div class="section-title">Stap 1 — Week Ingevorder</div>
-  <div class="card" style="margin-top:0;">
-    <div style="text-align:center;">
-      <div style="font-size:10px;color:var(--muted);">Roetes kontant totaal</div>
-      <div style="font-size:22px;font-weight:700;color:var(--blue);" id="md-week-tot">R0</div>
+  <!-- LOG SALE VIEW (Invoice) -->
+  <section class="view" id="view-sale">
+    <div class="field">
+      <label>Add Product to Invoice</label>
+      <input type="text" id="productSearchInput" placeholder="Type a product name or SKU...">
     </div>
-  </div>
+    <div id="productSearchResults"></div>
 
-  <div class="section-title">Stap 2 — Shop2Shop Inbetaling</div>
-  <div class="card step-card">
-    <div class="step-row">
-      <div><div class="step-row-label">📱 Shop2Shop</div><div class="step-row-sub">Ekstra inbetaling</div></div>
-      <input type="number" id="md-shop2shop" placeholder="0.00" oninput="mdRecalc()" class="step-input" style="color:var(--purple);" />
-    </div>
-  </div>
-
-  <div class="section-title">Stap 3 — Trek Lone Af</div>
-  <div class="card step-card">
-    <div class="step-row">
-      <div><div class="step-row-label">👷 Lone</div><div class="step-row-sub">Gewoonlik gedek deur Shop2Shop</div></div>
-      <input type="number" id="md-lone" value="35000" oninput="mdRecalc()" class="step-input" style="color:var(--purple);" />
-    </div>
-  </div>
-
-  <div class="section-title">Stap 4 — Trek New Harvest Af</div>
-  <div class="card sup-card" style="margin-top:0;">
-    <div class="sup-head">
-      <span class="sup-name">🌾 New Harvest</span>
-      <span class="sup-total" id="suptot-harvest">−R0</span>
-    </div>
-    <div id="frows-harvest"></div>
-    <button class="add-fak-btn" onclick="voegFaktuurBy('harvest')">➕ Voeg faktuur by</button>
-  </div>
-
-  <div class="section-title">Stap 5 — Bank Inbetaling</div>
-  <div class="step-result" style="background:rgba(80,168,232,.08);border:1px solid var(--blue);">
-    <div class="step-result-label" style="color:var(--blue);">🏦 Berekende bedrag</div>
-    <div class="step-result-sub" style="color:var(--blue);margin-bottom:8px;" id="md-bank-out-sub">Week ingevorder + Shop2Shop − Lone − New Harvest</div>
-    <label style="color:var(--blue);">Werklike bedrag in bank (R) — wysig indien nodig</label>
-    <input type="number" id="md-bank-actual" placeholder="0.00" oninput="mdRecalc(true)"
-      style="width:100%;text-align:center;font-size:22px;font-weight:700;color:var(--blue);background:var(--surface);border:1px solid var(--blue);border-radius:6px;padding:10px;margin-bottom:0;" />
-    <button class="btn btn-secondary" style="margin:8px 0 0;font-size:13px;padding:8px;" onclick="useCalculatedBank()">↺ Gebruik berekende bedrag</button>
-  </div>
-
-  <div class="section-title">Stap 6 — Betaal Kontant Suppliers</div>
-  <div id="suppliers-container"></div>
-  <div class="sup-grand-total">
-    <span style="font-size:13px;color:var(--muted);">Totaal kontant suppliers</span>
-    <span style="font-size:16px;font-weight:700;color:var(--danger);" id="md-sup-totaal">−R0</span>
-  </div>
-
-  <div class="section-title">Stap 7 — Beskikbaar vir die Maand</div>
-  <div class="step-result" style="background:rgba(126,200,80,.08);border:1px solid var(--accent);">
-    <div class="step-result-label" style="color:var(--accent);">Beskikbaar</div>
-    <div class="step-result-val" style="color:var(--accent);" id="md-beskikbaar">R0</div>
-    <div class="step-result-sub" style="color:var(--accent);" id="md-beskikbaar-sub">Voer bedrae hierbo in</div>
-  </div>
-
-  <div class="section-title">Stap 8 — Verdeling in 4 Buckets</div>
-  <div class="card">
-    <div class="bucket-pct-grid">
-      <div class="bp-card" style="background:rgba(80,168,232,.08);border:1px solid var(--blue);">
-        <div class="bp-label">Rekeninge</div><div class="bp-pct" style="color:var(--blue);">45%</div>
-        <div class="bp-amt" style="color:var(--blue);" id="md-b-rek">R0</div>
+    <!-- Miscellaneous item -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">➕ Miscellaneous Item</div>
+      <div class="field" style="margin-bottom:8px;">
+        <label>Description</label>
+        <input type="text" id="miscName" placeholder="e.g. Special order, gift wrap...">
       </div>
-      <div class="bp-card" style="background:rgba(126,200,80,.08);border:1px solid var(--accent);">
-        <div class="bp-label">Savings</div><div class="bp-pct" style="color:var(--accent);">25%</div>
-        <div class="bp-amt" style="color:var(--accent);" id="md-b-sav">R0</div>
+      <div class="row2">
+        <div class="field" style="margin-bottom:0;">
+          <label>Price (R)</label>
+          <input type="number" id="miscPrice" inputmode="decimal" placeholder="0">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Qty</label>
+          <input type="number" id="miscQty" inputmode="numeric" placeholder="1" value="1" min="1">
+        </div>
       </div>
-      <div class="bp-card" style="background:rgba(200,168,80,.08);border:1px solid var(--accent2);">
-        <div class="bp-label">Onderhoud</div><div class="bp-pct" style="color:var(--accent2);">15%</div>
-        <div class="bp-amt" style="color:var(--accent2);" id="md-b-ond">R0</div>
+      <button class="btn btn-secondary" id="miscAddBtn" style="margin-top:10px;">➕ Add to Invoice</button>
+    </div>
+
+    <div id="invoiceLines"></div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Payment Method</label>
+      <select id="salePayment">
+        <option>EFT</option>
+        <option>Cash</option>
+        <option>Payfast (Pickup)</option>
+        <option>Card</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes (optional)</label>
+      <textarea id="saleNotes" rows="2" placeholder="e.g. customer name, walk-in..."></textarea>
+    </div>
+
+    <div class="invoice-totals">
+      <div class="totals-row"><span>Subtotal</span><span id="invSubtotal">R0</span></div>
+      <div class="totals-row"><span>Discounts</span><span id="invDiscount">−R0</span></div>
+      <div class="totals-row grand"><span>Total</span><span id="invGrandTotal">R0</span></div>
+    </div>
+    <button class="btn btn-primary" id="logInvoiceBtn">Log Invoice &amp; Update Stock</button>
+    <button class="btn btn-secondary" id="generateInvoiceBtn" style="display:none; margin-top:10px;">Generate Invoice (PDF)</button>
+    <div id="invoiceSuccessNote" style="display:none; text-align:center; color:var(--muted); font-size:15px; margin-top:8px;">
+      Invoice <span id="lastInvoiceNo"></span> saved. Tap above to generate and share the receipt.
+    </div>
+  </section>
+
+  <!-- REORDER / PURCHASE ORDER VIEW -->
+  <section class="view" id="view-reorder">
+
+    <!-- Soek produk -->
+    <div class="card">
+      <div style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">🛒 Build Your Order</div>
+      <div class="field" style="margin-bottom:8px;">
+        <label>Search Product</label>
+        <input type="text" id="poSearch" placeholder="Type product name..." oninput="poFilterProducts()">
       </div>
-      <div class="bp-card" style="background:rgba(224,85,85,.08);border:1px solid var(--danger);">
-        <div class="bp-label">Onvoorsien</div><div class="bp-pct" style="color:var(--danger);">15%</div>
-        <div class="bp-amt" style="color:var(--danger);" id="md-b-onv">R0</div>
+      <div id="poSearchResults" style="display:none; max-height:250px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; margin-bottom:10px;"></div>
+
+      <!-- Custom item -->
+      <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">
+        <div style="font-size:12px; font-weight:600; color:var(--muted); margin-bottom:8px;">➕ Add item not on list</div>
+        <div class="field" style="margin-bottom:8px;">
+          <label>Product Name</label>
+          <input type="text" id="poCustomName" placeholder="e.g. Awaken Special Order">
+        </div>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0;">
+            <label>Price (R)</label>
+            <input type="number" id="poCustomPrice" inputmode="decimal" placeholder="0">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Qty</label>
+            <input type="number" id="poCustomQty" inputmode="numeric" placeholder="1" value="1" min="1">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0; margin-top:8px;">
+          <label>Supplier</label>
+          <input type="text" id="poCustomSupplier" placeholder="e.g. AWAKEN" list="poCustomSupplierList">
+          <datalist id="poCustomSupplierList"></datalist>
+        </div>
+        <button class="btn btn-secondary" id="poCustomAddBtn" style="width:100%; margin-top:10px;">➕ Add to Order</button>
       </div>
     </div>
-  </div>
 
-  <div class="section-title">Maand Vordering — Rekeninge Bucket</div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;">
-      <span>Opgebou hierdie maand</span>
-      <span style="font-weight:600;color:var(--text);" id="md-maand-lbl">R0 / R654,988</span>
-    </div>
-    <div class="bar-bg"><div class="bar-fill" id="md-maand-bar" style="width:0%;"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
-      <div style="text-align:center;"><div style="font-size:10px;color:var(--muted);">Nog benodig</div><div style="font-size:16px;font-weight:700;color:var(--danger);" id="md-nog-benodig">R654,988</div></div>
-      <div style="text-align:center;"><div style="font-size:10px;color:var(--muted);">Weke oor (maand)</div><div style="font-size:16px;font-weight:700;color:var(--blue);" id="md-weke-oor">4 weke</div></div>
-    </div>
-  </div>
+    <!-- Gekose produkte -->
+    <div class="card" id="poSelectedCard" style="display:none;">
+      <div style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">📋 Order List</div>
+      <div id="poSelectedLines"></div>
 
-  <div class="card">
-    <button class="btn btn-primary" onclick="confirmSaveMaandag()">💾 Stoor Maandag Afrekening</button>
-  </div>
-</div>
-
-<!-- ══════════════ TAB 3: BEGROTING ══════════════ -->
-<div class="tab-content" id="tab-begroting">
-  <div class="section-title">📊 Maand Oorsig</div>
-  <div class="card" style="margin-top:0;">
-    <div class="month-summary">
-      <div class="ms-item"><div class="ms-label">Totale Verpligtinge</div><div class="ms-val ms-red" id="bg-totale-verplig">R654,988</div></div>
-      <div class="ms-item"><div class="ms-label">Lone (Maand)</div><div class="ms-val ms-purple" id="bg-lone-maand">R140,000</div></div>
-      <div class="ms-item"><div class="ms-label">Opgebou (Rekeninge bucket)</div><div class="ms-val ms-green" id="bg-opgebou">R0</div></div>
-      <div class="ms-item"><div class="ms-label">Nog Benodig</div><div class="ms-val ms-red" id="bg-nodig">R654,988</div></div>
-    </div>
-    <div class="bar-bg"><div class="bar-fill" id="bg-bar" style="width:0%"></div></div>
-    <div class="bar-labels"><span id="bg-pct">0% gedek</span><span class="bg-target-label">Teiken: R654,988</span></div>
-  </div>
-
-  <div class="section-title">🪣 Bucket Totale (Hierdie Maand)</div>
-  <div class="card">
-    <div class="bucket-pct-grid">
-      <div class="bp-card" style="background:rgba(80,168,232,.08);border:1px solid var(--blue);">
-        <div class="bp-label">Rekeninge</div><div class="bp-pct" style="color:var(--blue);">45%</div>
-        <div class="bp-amt" style="color:var(--blue);" id="bg-t-rek">R0</div>
+      <div class="card" style="margin-top:10px; padding:10px;">
+        <div class="field" style="margin-bottom:8px;">
+          <label>Courier?</label>
+          <div class="filter-row" style="margin:0;">
+            <div class="chip active" id="poCourierNo" data-courier="no">No</div>
+            <div class="chip" id="poCourierYes" data-courier="yes">Yes</div>
+          </div>
+        </div>
+        <div class="field" id="poCourierFeeField" style="display:none; margin-bottom:0;">
+          <label>Courier Fee (R)</label>
+          <input type="number" id="poCourierFee" min="0" inputmode="decimal" placeholder="0" oninput="poUpdateTotals()">
+        </div>
       </div>
-      <div class="bp-card" style="background:rgba(126,200,80,.08);border:1px solid var(--accent);">
-        <div class="bp-label">Savings</div><div class="bp-pct" style="color:var(--accent);">25%</div>
-        <div class="bp-amt" style="color:var(--accent);" id="bg-t-sav">R0</div>
+
+      <div class="invoice-totals" style="margin-top:10px;">
+        <div class="totals-row"><span>Items</span><span id="poItemCount">0</span></div>
+        <div class="totals-row" id="poCourierRow" style="display:none;"><span>Courier</span><span id="poCourierDisplay">R0</span></div>
+        <div class="totals-row grand"><span>Estimated Cost</span><span id="poGrandTotal">R0</span></div>
       </div>
-      <div class="bp-card" style="background:rgba(200,168,80,.08);border:1px solid var(--accent2);">
-        <div class="bp-label">Onderhoud</div><div class="bp-pct" style="color:var(--accent2);">15%</div>
-        <div class="bp-amt" style="color:var(--accent2);" id="bg-t-ond">R0</div>
+
+      <button class="btn btn-primary" id="generatePoBtn" style="margin-top:10px;">Generate Purchase Order (PDF)</button>
+      <button class="btn btn-secondary" id="poClearBtn" style="margin-top:8px; width:100%;">🗑️ Clear Order</button>
+    </div>
+
+  </section>
+
+  <!-- FINANCE VIEW -->
+  <section class="view" id="view-finance">
+
+    <!-- Blikkie Kumulatief Banner -->
+    <div class="card" style="background:linear-gradient(135deg,#1B5E20,#2E7D4F); border:none; text-align:center; padding:16px;">
+      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:4px;">💰 Piggy Bank Total</div>
+      <div id="finBlikkieTotaal" style="font-size:28px; font-weight:700; color:#fff;">R25,000</div>
+      <div style="font-size:11px; color:rgba(255,255,255,0.7); margin-top:2px;">Kumulatief gespaar</div>
+    </div>
+
+    <!-- Vandag se Afsluiting -->
+    <div class="card">
+      <div style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">📝 Today's Closing</div>
+
+      <div id="finDatumLabel" style="font-size:13px; color:var(--muted); margin-bottom:10px; text-align:center;"></div>
+
+      <!-- Cash -->
+      <div class="field">
+        <label>💵 Opening Balance Cash (R)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="finOpening" inputmode="decimal" placeholder="0" style="flex:1; font-size:18px; font-weight:700;" oninput="updateFinDagPreview()">
+          <button class="btn btn-secondary" id="finCountOpenBtn" style="padding:0 12px; font-size:12px; white-space:nowrap;">Count</button>
+        </div>
       </div>
-      <div class="bp-card" style="background:rgba(224,85,85,.08);border:1px solid var(--danger);">
-        <div class="bp-label">Onvoorsien</div><div class="bp-pct" style="color:var(--danger);">15%</div>
-        <div class="bp-amt" style="color:var(--danger);" id="bg-t-onv">R0</div>
+
+      <div class="field" style="margin-top:10px;">
+        <label>💵 Closing Balance Cash (R)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="finKontant" inputmode="decimal" placeholder="0" style="flex:1; font-size:18px; font-weight:700;" oninput="updateFinDagPreview()">
+          <button class="btn btn-secondary" id="finCountBtn" style="padding:0 12px; font-size:12px; white-space:nowrap;">Count</button>
+        </div>
+      </div>
+      
+      <div id="finCashDiff" style="display:none; background:var(--surface-2); border-radius:8px; padding:8px 12px; margin-top:6px; font-size:13px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--muted);">Cash received today</span>
+          <span id="finCashDiffAmt" style="font-weight:700; color:var(--leaf);">R0</span>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:10px;">
+        <label>💳 Card Sales / PosSettle (R)</label>
+        <input type="number" id="finKaart" inputmode="decimal" placeholder="0" style="flex:1; font-size:18px; font-weight:700;" oninput="updateFinDagPreview()">
+      </div>
+
+      <!-- Dag totaal preview -->
+      <div id="finDagPreview" style="display:none; background:var(--surface-2); border-radius:8px; padding:10px; margin-top:10px;">
+        <div class="totals-row"><span style="font-size:13px;">Cash</span><span id="finPrevKontant" style="font-weight:700;">R0</span></div>
+        <div class="totals-row"><span style="font-size:13px;">Kaart</span><span id="finPrevKaart" style="font-weight:700;">R0</span></div>
+        <div class="totals-row grand"><span>Day Total</span><span id="finPrevTotaal" style="color:var(--leaf); font-weight:700;">R0</span></div>
+      </div>
+
+      <!-- Bucket verdeling preview -->
+      <div id="finBucketPreview" style="display:none; margin-top:10px;">
+        <div style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">Today's Bucket Split:</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div style="background:var(--surface-2); border-radius:8px; padding:10px; border-top:3px solid #4CAF50;">
+            <div style="font-size:10px; color:var(--muted);">💰 Blikkie</div>
+            <div id="finPrevBlikkie" style="font-size:17px; font-weight:700; color:#2E7D4F;">R0</div>
+          </div>
+          <div style="background:var(--surface-2); border-radius:8px; padding:10px; border-top:3px solid #2196F3;">
+            <div style="font-size:10px; color:var(--muted);">👷 Xavier</div>
+            <div id="finPrevXavier" style="font-size:17px; font-weight:700;">R0</div>
+          </div>
+          <div style="background:var(--surface-2); border-radius:8px; padding:10px; border-top:3px solid #FF9800;">
+            <div style="font-size:10px; color:var(--muted);">🏪 Stock</div>
+            <div id="finPrevVoorraad" style="font-size:17px; font-weight:700;">R0</div>
+          </div>
+          <div style="background:var(--surface-2); border-radius:8px; padding:10px; border-top:3px solid #F44336;">
+            <div style="font-size:10px; color:var(--muted);">🚨 Unexpected</div>
+            <div id="finPrevOnvoorsien" style="font-size:17px; font-weight:700;">R0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:10px; margin-bottom:0;">
+        <label>Notes (opsioneel)</label>
+        <input type="text" id="finNotes" placeholder="e.g. quiet day, good morning...">
+      </div>
+
+      <button class="btn btn-primary" id="finSaveDay" style="margin-top:14px; width:100%;">💾 Save Today's Closing</button>
+      <div id="finSaveStatus" style="display:none; text-align:center; margin-top:8px; font-size:13px;"></div>
+    </div>
+
+    <!-- Geskiedenis -->
+    <div class="card">
+      <div style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">📅 History</div>
+      <div id="finGeskiedenisLoading" style="text-align:center; color:var(--muted); font-size:13px; padding:10px;">⏳ Loading history...</div>
+      <div id="finGeskiedenis"></div>
+      <button class="btn btn-secondary" id="finRefreshGeskiedenis" style="width:100%; margin-top:10px; font-size:12px;">🔄 Refresh</button>
+    </div>
+
+    <!-- Cash Count Modal -->
+    <div id="cashCountModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; overflow-y:auto;">
+      <div style="background:var(--surface); margin:20px auto; max-width:420px; border-radius:var(--radius); padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <span style="font-size:17px; font-weight:700; color:var(--leaf);">Cash Count</span>
+          <button id="cashCountClose" style="background:none; border:none; font-size:22px; color:var(--muted); cursor:pointer;">×</button>
+        </div>
+        <div id="cashCountRows"></div>
+        <div style="border-top:2px solid var(--leaf); margin-top:12px; padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:700; font-size:16px;">Total</span>
+          <span id="cashCountTotal" style="font-weight:700; font-size:20px; color:var(--leaf);">R0</span>
+        </div>
+        <button id="cashCountUse" class="btn btn-primary" style="margin-top:16px; width:100%;">Use This Amount</button>
       </div>
     </div>
-  </div>
 
-  <div class="section-title">📋 Rekening Status</div>
-  <div class="card"><h3>🥩 30-DAE REKENINGE</h3><div id="rl-suppliers"></div></div>
-  <div class="card"><h3>🏦 DEBIET ORDERS</h3><div id="rl-debiet"></div></div>
-  <div class="card"><h3>📋 GEWONE UITGAWES</h3><div id="rl-gewone"></div></div>
+  </section>
 
-  <div class="card">
-    <button class="btn btn-secondary" onclick="resetMonth()">🔄 Nuwe Maand Begin</button>
-    <button class="btn btn-danger" onclick="clearBudgetData()">🗑️ Vee Begroting Uit</button>
-  </div>
-</div>
+  <!-- ADD PRODUCT VIEW -->
+  <section class="view" id="view-addproduct">
 
-<!-- ══════════════ TAB 4: GESKIEDENIS ══════════════ -->
-<div class="tab-content" id="tab-geskiedenis">
-  <div class="section-title">📅 Roete Geskiedenis</div>
-  <div class="card" style="margin-top:0;">
-    <div id="history-list"><div class="empty-state">Geen geskiedenis nie...</div></div>
-    <button class="btn btn-secondary" style="margin-top:10px;" onclick="loadHistory()">🔄 Verfris</button>
-    <button class="btn btn-danger" style="margin-top:4px;" onclick="clearDagData()">🗑️ Vee Geskiedenis Uit</button>
-  </div>
+    <div class="card">
+      <div style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">➕ Add New Product</div>
 
-  <div class="section-title">🏦 Maandag Afrekening Geskiedenis</div>
-  <div class="card">
-    <div id="maandag-history-list"><div class="empty-state">Geen geskiedenis nie...</div></div>
-    <button class="btn btn-danger" style="margin-top:4px;" onclick="clearMaandagData()">🗑️ Vee Maandag Geskiedenis Uit</button>
-  </div>
-</div>
+      <div class="field">
+        <label>Supplier</label>
+        <input type="text" id="apSupplierText" list="apSupplierList" placeholder="Kies of tik verskaffer naam..." autocomplete="off">
+        <datalist id="apSupplierList">
+          <option value="AWAKEN">
+          <option value="LIFTED">
+          <option value="GREENESSENCE">
+          <option value="CANNABIS SHOP">
+          <option value="From The Barkery">
+          <option value="Wicked Imports">
+        </datalist>
+      </div>
 
-<div id="toast"></div>
+      <div class="field">
+        <label>Category</label>
+        <input type="text" id="apCategory" placeholder="bv. CREAMS, VAPES, GUMMIES...">
+      </div>
+
+      <div class="field">
+        <label>Product Name</label>
+        <input type="text" id="apProduct" placeholder="Volledige produknaam">
+      </div>
+
+      <div class="field">
+        <label>SKU</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="apSku" placeholder="bv. GRG-CRE-021" style="flex:1; text-transform:uppercase;">
+          <button class="btn btn-secondary" id="apSkuGenBtn" style="padding:0 10px; font-size:11px; white-space:nowrap;">Auto-genereer</button>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">GRG- vir Shopify produkte. AWK-/LFT-/GRE- vir fisiese-winkel-alleen produkte.</div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>In Stock</label>
+          <input type="number" id="apInStock" min="0" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Min Level</label>
+          <input type="number" id="apMinLevel" min="0" inputmode="numeric" placeholder="0 of 5">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Purchase Price (R)</label>
+          <input type="number" id="apPurchase" min="0" inputmode="decimal" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Retail Price (R)</label>
+          <input type="number" id="apRetail" min="0" inputmode="decimal" placeholder="0">
+        </div>
+      </div>
+
+      <div id="apMarginPreview" style="display:none; background:var(--surface-2); border-radius:8px; padding:10px; margin-top:4px; text-align:center; font-size:13px; color:var(--muted);">
+        Margin: <span id="apMarginPct" style="font-weight:700; color:var(--leaf);">0%</span>
+        &nbsp;|&nbsp; Profit: <span id="apProfitAmt" style="font-weight:700;">R0</span>
+      </div>
+
+      <button class="btn btn-primary" id="apSaveBtn" style="margin-top:14px;">Save New Product</button>
+      <div id="apStatus" style="display:none; text-align:center; margin-top:10px; font-size:13px;"></div>
+    </div>
+
+  </section>
+
+  <!-- PRICE UPDATE VIEW -->
+  <section class="view" id="view-price">
+    <div class="field">
+      <label>Product (SKU)</label>
+      <select id="priceSku"></select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Purchase Price (R)</label>
+        <input type="number" id="pricePurchase" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Retail Price (R)</label>
+        <input type="number" id="priceRetail" min="0" inputmode="decimal">
+      </div>
+    </div>
+    <div class="card" id="priceMarginPreview" style="display:none;">
+      <div class="card-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="stat"><span class="v" id="previewProfit">–</span><span class="k">New Profit</span></div>
+        <div class="stat"><span class="v" id="previewMargin">–</span><span class="k">New Margin</span></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="updatePriceBtn">Save New Price</button>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════
-// CLOUD SYNC (Google Apps Script + Sheets)
-// ══════════════════════════════════════
-const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKt6JrsVrQmXIGJ20tWtKahRi_c-eLBHk-xR_PPBWc0KLf87ovZzSPNu6HUIDILXcs/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVllVYwzsFSF0VD0lOIuo8X9sNX3Y9ZJ_TR8ebOmrf4OBrlUuUuG6XXaQwJiWed9EQ/exec';
 
-function setSyncIndicator(state, text) {
-  const el = document.getElementById('sync-indicator');
-  if (!el) return;
-  el.className = state;
-  el.textContent = text;
-  if (state === 'ok') setTimeout(() => { el.className = ''; }, 2000);
-}
+let stockData = [];
+let currentStatusFilter = 'ALL';
+let currentSupplierFilter = 'ALL';
 
-function cloudSave(tabel, inhoud) {
-  setSyncIndicator('busy', '☁️ stoor...');
-  fetch(CLOUD_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ tabel, aksie: 'stoor', inhoud })
-  })
-    .then(r => r.json())
-    .then(d => {
-      if (d && d.sukses) setSyncIndicator('ok', '☁️ gestoor');
-      else setSyncIndicator('err', '☁️ fout');
-    })
-    .catch(err => { console.error('Cloud stoor fout:', err); setSyncIndicator('err', '☁️ geen verbinding'); });
-}
-
-function cloudLoad(tabel) {
-  return fetch(CLOUD_URL + '?tabel=' + encodeURIComponent(tabel))
-    .then(r => r.json())
-    .then(d => d.data || [])
-    .catch(err => { console.error('Cloud laai fout:', err); return []; });
-}
-
-function mergeEntries(localArr, cloudArr) {
-  // Gebruik datum as unieke sleutel — voorkom duplikate
-  const map = {};
-  (localArr || []).forEach(e => { if (e && e.date) map[e.date] = e; });
-  (cloudArr || []).forEach(e => { if (e && e.date) map[e.date] = e; });
-  return Object.values(map).sort((a, b) => new Date(b.date) - new Date(a.date));
-}
-
-async function syncAll() {
-  setSyncIndicator('busy', '☁️ sinkroniseer...');
-  try {
-    const [cloudDag, cloudMaandag, cloudBudget] = await Promise.all([
-      cloudLoad('dag'), cloudLoad('maandag'), cloudLoad('budget')
-    ]);
-
-    // Gebruik die Sheet as bron van waarheid as dit data het
-    // Anders gebruik plaaslike data
-    const localDag = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-    if (cloudDag && cloudDag.length > 0) {
-      // Voeg slegs plaaslike inskrywings by wat NIE in die Sheet is nie
-      const cloudDates = new Set(cloudDag.map(e => e.date));
-      const onlyLocal = localDag.filter(e => e && e.date && !cloudDates.has(e.date));
-      const merged = [...cloudDag, ...onlyLocal].sort((a, b) => new Date(b.date) - new Date(a.date));
-      localStorage.setItem(KEYS.dag, JSON.stringify(merged));
+// ---------- Navigation ----------
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    if (btn.dataset.view === 'reorder') {
+      poFillSupplierDatalist();
     }
-
-    const localMaandag = JSON.parse(localStorage.getItem(KEYS.maandag) || '[]');
-    if (cloudMaandag && cloudMaandag.length > 0) {
-      const cloudDates = new Set(cloudMaandag.map(e => e.date));
-      const onlyLocal = localMaandag.filter(e => e && e.date && !cloudDates.has(e.date));
-      const merged = [...cloudMaandag, ...onlyLocal].sort((a, b) => new Date(b.date) - new Date(a.date));
-      localStorage.setItem(KEYS.maandag, JSON.stringify(merged));
+    if (btn.dataset.view === 'finance') {
+      const datumEl = document.getElementById('finDatum');
+      if (datumEl && !datumEl.value) {
+        const t = new Date();
+        datumEl.value = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+      }
+      loadFinanceHistory();
     }
-
-    if (cloudBudget && cloudBudget.length) {
-      const latest = cloudBudget[cloudBudget.length - 1];
-      localStorage.setItem(KEYS.budget, JSON.stringify(latest));
-    }
-
-    renderWeekOpsomming();
-    renderBudget();
-    mdRecalc();
-    loadHistory();
-    loadMaandagHistory();
-    setSyncIndicator('ok', '☁️ op datum');
-  } catch (err) {
-    console.error('Sync fout:', err);
-    setSyncIndicator('err', '☁️ geen verbinding');
-  }
-}
-
-// ══════════════════════════════════════
-// DATA
-// ══════════════════════════════════════
-const BDATA = {
-  suppliers: [
-    { name:'Crown', amt:266186.09 },
-    { name:'Margot (Mswiss)', amt:69426.56 },
-    { name:'Deli', amt:178349.13 }
-  ],
-  debiet: [
-    { name:'ADT (Fenmeat)', amt:2295.40 },{ name:'Msec', amt:435.00 },{ name:'We do wireless', amt:2100.00 },
-    { name:'Dyna Trok', amt:4795.37 },{ name:'H1 Trokkie', amt:5471.43 },{ name:'Huis', amt:11900.21 },
-    { name:'Outsurance', amt:18652.84 },{ name:'Momentum', amt:8595.00 },{ name:'Sanlam', amt:10345.25 },
-    { name:'Liberty', amt:6897.75 },{ name:'Adt', amt:502.43 }
-  ],
-  gewone: [
-    { name:'Telkom', amt:976.10 },{ name:'Uif', amt:2700.00 },{ name:'Vodacom', amt:167.37 },
-    { name:'Vodacom Alex', amt:200.50 },{ name:'Rentokil', amt:1560.00 },{ name:'Mascador', amt:16385.00 },
-    { name:'Multi', amt:2246.50 },{ name:'Munisip', amt:2800.00 },{ name:'Ouditeure', amt:6000.00 },
-    { name:'Abel', amt:6000.00 },{ name:'Alinda Fenwick', amt:30000.00 }
-  ]
-};
-const BASE_TOTAL = 654987.93;
-const KONTANT_SUPPLIERS = ['Freddie','Country Style','Labels','Meateniqua','Hartman'];
-function supKey(name) { return name.toLowerCase().replace(/[^a-z0-9]/g,'_'); }
-const FAKTUUR_KEYS = KONTANT_SUPPLIERS.map(supKey).concat(['harvest']);
-const BUCKET_SPLITS = { rek:0.45, sav:0.25, ond:0.15, onv:0.15 };
-
-const KEYS = {
-  dag:'fm_dag', budget:'fm_budget',
-  maandag:'fm_maandag', roetes:'fm_roetes', faktuurCounts:'fm_faktuur_counts',
-  customAmounts:'fm_custom_amounts', maandagDraf:'fm_maandag_draf', dagKeuse:'fm_dag_keuse'
-};
-
-const ALLE_ROETES = ['George','Knysna','Grootbrak','Pacaltsdorp','Crags','Mosselbaai','Plett','Thambalethu','Stilbaai','Oudtshoorn'];
-
-let faktuurCounts = {};
-
-// ══════════════════════════════════════
-// INIT
-// ══════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  initDagKeuse();
-  renderRoetes();
-  recalcRoete();
-  renderWeekOpsomming();
-  loadPiggy();
-  buildSupplierCards();
-  loadDraf();
-  mdRecalc();
-  renderBudget();
-  loadHistory();
-  loadMaandagHistory();
-  syncAll();
+  });
 });
 
-function showTab(name, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-  if (name === 'begroting') renderBudget();
-  if (name === 'geskiedenis') { loadHistory(); loadMaandagHistory(); }
+// ---------- Toast ----------
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 3200);
 }
 
-// ══════════════════════════════════════
-// ROETE TAB
-// ══════════════════════════════════════
-function initDagKeuse() {
-  const select = document.getElementById('dag-keuse');
-  const saved = localStorage.getItem(KEYS.dagKeuse);
-  if (saved !== null && saved !== '') {
-    select.value = saved;
-  } else {
-    select.value = String(new Date().getDay());
-  }
-}
-
-function onDagKeuseChange() {
-  const select = document.getElementById('dag-keuse');
-  localStorage.setItem(KEYS.dagKeuse, select.value);
-  renderRoetes();
-  recalcRoete();
-}
-
-function getGekoseDag() {
-  const select = document.getElementById('dag-keuse');
-  if (select && select.value !== '') return parseInt(select.value, 10);
-  return new Date().getDay();
-}
-
-function getRoeteStorageKey() {
-  return new Date().toDateString() + '_dag' + getGekoseDag();
-}
-
-function renderRoetes() {
-  const stored = localStorage.getItem(KEYS.roetes);
-  let roetes;
-  const key = getRoeteStorageKey();
-  if (stored) {
-    const parsed = JSON.parse(stored);
-    if (parsed.date === key && Array.isArray(parsed.roetes) && parsed.roetes.length > 0) {
-      roetes = parsed.roetes;
-    }
-  }
-  if (!roetes) {
-    roetes = ALLE_ROETES.map(naam => ({ naam, kontant:'' }));
-  }
-  const container = document.getElementById('roetes-container');
-  container.innerHTML = roetes.map((r, i) => roeteCardHTML(r, i)).join('') +
-    `<div class="add-roete-btn" onclick="addRoete()">➕ Voeg roete by</div>`;
-}
-
-function roeteCardHTML(r, i) {
-  return `
-  <div class="roete-row">
-    <input class="roete-naam-inp-sm" type="text" value="${(r.naam||'').replace(/"/g,'&quot;')}" placeholder="Roete naam..." oninput="updateRoeteField(${i},'naam',this.value)" />
-    <input type="number" class="roete-kontant-inp" placeholder="0.00" min="0" step="0.01" value="${r.kontant||''}" oninput="updateRoeteField(${i},'kontant',this.value)" />
-  </div>`;
-}
-
-function getRoetes() {
-  const stored = localStorage.getItem(KEYS.roetes);
-  const key = getRoeteStorageKey();
-  if (stored) {
-    const parsed = JSON.parse(stored);
-    if (parsed.date === key) return parsed.roetes;
-  }
-  return [];
-}
-
-function setRoetes(roetes) {
+// ---------- Fetch Stock ----------
+async function loadStock() {
+  document.getElementById('stockList').innerHTML = '<div class="spinner"></div>';
   try {
-    localStorage.setItem(KEYS.roetes, JSON.stringify({ date: getRoeteStorageKey(), roetes }));
+    const res = await fetch(SCRIPT_URL + '?action=getStock');
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Failed to load stock');
+    stockData = json.data;
+    renderStats();
+    renderSupplierFilters();
+    renderStockList();
+    populateSkuSelects();
   } catch (err) {
-    console.error('Kon nie roetes stoor nie:', err);
+    document.getElementById('stockList').innerHTML =
+      '<div class="empty"><b>Could not load stock</b>Check your connection and try again.</div>';
+    showToast('Error loading stock: ' + err.message, true);
   }
 }
 
-function updateRoeteField(i, field, val) {
-  const roetes = getRoetes();
-  if (!roetes[i]) return;
-  roetes[i][field] = val;
-  setRoetes(roetes);
-  recalcRoete();
+function renderStats() {
+  const total = stockData.length;
+  const reorder = stockData.filter(p => p.status === 'REORDER').length;
+  const low = stockData.filter(p => p.status === 'LOW STOCK').length;
+  const avgMargin = stockData.length
+    ? (stockData.reduce((s, p) => s + (parseFloat(p.margin) || 0), 0) / stockData.length * 100).toFixed(1)
+    : 0;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statReorder').textContent = reorder;
+  document.getElementById('statLow').textContent = low;
+  document.getElementById('statMargin').textContent = avgMargin + '%';
 }
 
-function addRoete() {
-  const roetes = getRoetes();
-  roetes.push({ naam:'', kontant:'' });
-  setRoetes(roetes);
-  renderRoetes();
-  recalcRoete();
-}
-
-function recalcRoete() {
-  const container = document.getElementById('roetes-container');
-  let totKontant = 0;
-  if (container) {
-    container.querySelectorAll('.roete-kontant-inp').forEach(inp => {
-      totKontant += parseFloat(inp.value) || 0;
+function renderSupplierFilters() {
+  const suppliers = ['ALL', ...new Set(stockData.map(p => p.supplier))];
+  const container = document.getElementById('supplierFilters');
+  container.innerHTML = '';
+  suppliers.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (s === currentSupplierFilter ? ' active' : '');
+    chip.textContent = s === 'ALL' ? 'All Suppliers' : s;
+    chip.dataset.supplier = s;
+    chip.addEventListener('click', () => {
+      currentSupplierFilter = s;
+      document.querySelectorAll('#supplierFilters .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderStockList();
     });
-  }
-  document.getElementById('dag-kontant-totaal').textContent = fmt(totKontant);
+    container.appendChild(chip);
+  });
 }
 
-function saveClosing() {
-  // Lees direk van die skerm se invoervelde af — nie van localStorage nie — om te verseker
-  // ons stoor wat werklik op die skerm wys, selfs as 'n tikkery nie betyds na storage geskryf het nie.
-  const container = document.getElementById('roetes-container');
-  const rows = container.querySelectorAll('.roete-row');
-  let roetes = [];
-  rows.forEach(row => {
-    const naamInp = row.querySelector('.roete-naam-inp-sm');
-    const kontantInp = row.querySelector('.roete-kontant-inp');
-    roetes.push({
-      naam: naamInp ? naamInp.value : '',
-      kontant: kontantInp ? kontantInp.value : ''
-    });
+document.querySelectorAll('#statusFilters .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    currentStatusFilter = chip.dataset.status;
+    document.querySelectorAll('#statusFilters .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    renderStockList();
   });
-  if (!roetes.length) {
-    roetes = ALLE_ROETES.map(naam => ({ naam, kontant:'' }));
-  }
+});
 
-  const nt = document.getElementById('notes').value.trim();
-  let totKontant = 0;
-  roetes.forEach(r => {
-    totKontant += parseFloat(r.kontant) || 0;
+document.getElementById('searchInput').addEventListener('input', renderStockList);
+
+function fmtR(n) {
+  return 'R' + Number(n || 0).toLocaleString('en-ZA', {maximumFractionDigits: 0});
+}
+function fmtPct(n) {
+  return (Number(n || 0) * 100).toFixed(1) + '%';
+}
+
+function renderStockList() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let items = stockData.filter(p => {
+    const matchesSearch = !search ||
+      p.product.toLowerCase().includes(search) ||
+      p.sku.toLowerCase().includes(search);
+    const matchesStatus = currentStatusFilter === 'ALL' || p.status === currentStatusFilter;
+    const matchesSupplier = currentSupplierFilter === 'ALL' || p.supplier === currentSupplierFilter;
+    return matchesSearch && matchesStatus && matchesSupplier;
   });
-  const dn = ['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag'];
-  const gekoseDag = getGekoseDag();
-  const entry = {
-    date: new Date().toISOString(),
-    dagNaam: dn[gekoseDag],
-    roetes: roetes.map(r => ({ naam:r.naam, kontant: parseFloat(r.kontant)||0 })),
-    tot: totKontant, nt
-  };
 
-  try {
-    const h = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-    h.unshift(entry);
-    localStorage.setItem(KEYS.dag, JSON.stringify(h));
-
-    // Verifieer dat dit regtig geskryf is
-    const verify = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-    if (!verify.length || verify[0].tot !== totKontant) {
-      throw new Error('Verifikasie het misluk — data is nie korrek gestoor nie');
-    }
-  } catch (err) {
-    alert('⚠️ FOUT: Kon nie stoor nie!\n\nJou foon se blaaier het geweier om die data te stoor (' + err.message + ').\n\nMoontlike oplossings:\n1. Maak seker "Privaat Blaai" / "Private Browsing" is AF\n2. Maak die app toe en oop weer\n3. Probeer in gewone Safari (nie tuisskerm-ikoon nie) om te toets\n\nJou bedrag (' + fmt(totKontant) + ') is NIE gestoor nie — moenie wegnavigeer nie, probeer dadelik weer.');
+  const list = document.getElementById('stockList');
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty"><b>No products match</b>Try a different search or filter.</div>';
     return;
   }
 
-  cloudSave('dag', entry);
-
-  showToast('✅ Dagsluiting Gestoor! Totaal: ' + fmt(totKontant));
-  const resetRoetes = roetes.map(r => ({ naam:r.naam, kontant:'' }));
-  setRoetes(resetRoetes.length ? resetRoetes : ALLE_ROETES.map(naam => ({ naam, kontant:'' })));
-  document.getElementById('notes').value = '';
-  renderRoetes();
-  recalcRoete();
-  renderWeekOpsomming();
-}
-
-function loadPiggy() {}
-function savePiggy() {}
-
-// ══════════════════════════════════════
-// MAANDAG TAB
-// ══════════════════════════════════════
-function buildSupplierCards() {
-  const stored = localStorage.getItem(KEYS.faktuurCounts);
-  faktuurCounts = stored ? JSON.parse(stored) : {};
-  FAKTUUR_KEYS.forEach(key => {
-    if (!faktuurCounts[key]) faktuurCounts[key] = 1;
-  });
-  const container = document.getElementById('suppliers-container');
-  container.innerHTML = KONTANT_SUPPLIERS.map(name => supplierCardHTML(name)).join('');
-  buildHarvestRows();
-}
-
-function faktuurRowHTML(key, i) {
-  return `<div class="faktuur-row" id="frow-${key}-${i}" data-paid="0">
-      <span class="faktuur-paid-toggle" onclick="toggleFaktuurPaid('${key}',${i})" title="Merk betaal">⬜</span>
-      <span class="faktuur-num">${i}.</span>
-      <input type="text" class="faktuur-nr-input" placeholder="Faktuur nr." id="fn-${key}-${i}" oninput="mdRecalc()" />
-      <input type="number" class="faktuur-input" placeholder="Bedrag..." id="f-${key}-${i}" oninput="mdRecalc()" />
-      ${i > 1 ? `<button class="faktuur-del" onclick="removeFaktuur('${key}',${i})">✕</button>` : ''}
-    </div>`;
-}
-
-function toggleFaktuurPaid(key, i) {
-  const row = document.getElementById(`frow-${key}-${i}`);
-  if (!row) return;
-  const nowPaid = row.dataset.paid !== '1';
-  row.dataset.paid = nowPaid ? '1' : '0';
-  row.classList.toggle('paid', nowPaid);
-  const toggle = row.querySelector('.faktuur-paid-toggle');
-  if (toggle) toggle.textContent = nowPaid ? '✅' : '⬜';
-  saveDraf();
-}
-
-function buildHarvestRows() {
-  const key = 'harvest';
-  const count = faktuurCounts[key] || 1;
-  let rows = '';
-  for (let i = 1; i <= count; i++) {
-    rows += faktuurRowHTML(key, i);
-  }
-  const wrap = document.getElementById('frows-harvest');
-  if (wrap) wrap.innerHTML = rows;
-}
-
-function supplierCardHTML(name) {
-  const key = supKey(name);
-  const count = faktuurCounts[key] || 1;
-  let rows = '';
-  for (let i = 1; i <= count; i++) {
-    rows += faktuurRowHTML(key, i);
-  }
-  return `
-  <div class="card sup-card">
-    <div class="sup-head">
-      <span class="sup-name">📦 ${name}</span>
-      <span class="sup-total" id="suptot-${key}">−R0</span>
+  list.innerHTML = items.map(p => `
+    <div class="card" data-sku="${p.sku}">
+      <div class="card-top">
+        <div>
+          <div class="sku-tag">${p.sku}</div>
+          <div class="card-title">${p.product}</div>
+          <div class="card-sub">${p.supplier} &middot; ${p.category}</div>
+        </div>
+        <span class="badge ${p.status.replace(' ', '')}">${p.status}</span>
+      </div>
+      <div class="card-grid">
+        <div class="stat"><span class="v">${p.inStock}</span><span class="k">In Stock</span></div>
+        <div class="stat"><span class="v">${fmtR(p.retail)}</span><span class="k">Retail</span></div>
+        <div class="stat"><span class="v">${fmtR(p.profit)}</span><span class="k">Profit</span></div>
+        <div class="stat ${parseFloat(p.margin) < 0.4 ? 'margin-low' : ''}">
+          <span class="v">${fmtPct(p.margin)}</span><span class="k">Margin</span>
+        </div>
+      </div>
+      <div class="stock-adjust">
+        <button class="step-btn" data-action="dec">&minus;</button>
+        <input type="number" class="qty-input" value="${p.inStock}" inputmode="numeric" min="0">
+        <button class="step-btn" data-action="inc">&plus;</button>
+        <button class="save-btn" data-action="save">Save</button>
+      </div>
     </div>
-    <div id="frows-${key}">${rows}</div>
-    <button class="add-fak-btn" onclick="voegFaktuurBy('${key}')">➕ Voeg faktuur by</button>
-  </div>`;
+  `).join('');
+
+  attachStockAdjustHandlers();
 }
 
-function voegFaktuurBy(key) {
-  faktuurCounts[key] = (faktuurCounts[key] || 1) + 1;
-  localStorage.setItem(KEYS.faktuurCounts, JSON.stringify(faktuurCounts));
-  const n = faktuurCounts[key];
-  const wrap = document.getElementById('frows-' + key);
-  wrap.insertAdjacentHTML('beforeend', faktuurRowHTML(key, n));
-}
+function attachStockAdjustHandlers() {
+  document.querySelectorAll('#stockList .card').forEach(card => {
+    const sku = card.dataset.sku;
+    const product = stockData.find(p => p.sku === sku);
+    const input = card.querySelector('.qty-input');
+    const saveBtn = card.querySelector('.save-btn');
+    const decBtn = card.querySelector('[data-action="dec"]');
+    const incBtn = card.querySelector('[data-action="inc"]');
 
-function removeFaktuur(key, n) {
-  const row = document.getElementById(`frow-${key}-${n}`);
-  if (row) row.remove();
-  mdRecalc();
-}
+    function refreshSaveVisibility() {
+      const changed = parseInt(input.value || '0', 10) !== product.inStock;
+      saveBtn.classList.toggle('visible', changed);
+    }
 
-function somSupplier(key) {
-  let tot = 0;
-  const wrap = document.getElementById('frows-' + key);
-  if (!wrap) return 0;
-  wrap.querySelectorAll('.faktuur-input').forEach(inp => { tot += parseFloat(inp.value) || 0; });
-  return tot;
-}
-
-function getSupplierFakture(key) {
-  const wrap = document.getElementById('frows-' + key);
-  if (!wrap) return [];
-  const fakture = [];
-  wrap.querySelectorAll('.faktuur-row').forEach(row => {
-    const nrInput = row.querySelector('.faktuur-nr-input');
-    const amtInput = row.querySelector('.faktuur-input');
-    const nr = nrInput ? nrInput.value.trim() : '';
-    const amt = amtInput ? parseFloat(amtInput.value) || 0 : 0;
-    const paid = row.dataset.paid === '1';
-    if (nr || amt) fakture.push({ nr, amt, paid });
-  });
-  return fakture;
-}
-
-function mdRecalc(userEdited) {
-  const weekData = getWeekInvordering();
-  const weekTot = weekData.tot;
-  document.getElementById('md-week-tot').textContent = fmt(weekData.tot);
-  const shop2shop = parseFloat(document.getElementById('md-shop2shop').value) || 0;
-  const lone = parseFloat(document.getElementById('md-lone').value) || 0;
-  const harvest = somSupplier('harvest');
-  const harvestEl = document.getElementById('suptot-harvest');
-  if (harvestEl) harvestEl.textContent = '−' + fmt(harvest);
-
-  const bankCalculated = Math.max(0, weekTot + shop2shop - lone - harvest);
-  document.getElementById('md-bank-out-sub').textContent =
-    `Berekening: ${fmt(weekTot)} + ${fmt(shop2shop)} − ${fmt(lone)} − ${fmt(harvest)} = ${fmt(bankCalculated)}`;
-
-  const bankField = document.getElementById('md-bank-actual');
-  if (!userEdited && bankField.value === '') {
-    bankField.placeholder = bankCalculated > 0 ? bankCalculated.toFixed(2) : '0.00';
-  }
-  const bankOut = bankField.value !== '' ? (parseFloat(bankField.value) || 0) : bankCalculated;
-
-  let supTotaal = 0;
-  KONTANT_SUPPLIERS.forEach(name => {
-    const key = supKey(name);
-    const t = somSupplier(key);
-    const el = document.getElementById('suptot-' + key);
-    if (el) el.textContent = '−' + fmt(t);
-    supTotaal += t;
-  });
-  document.getElementById('md-sup-totaal').textContent = '−' + fmt(supTotaal);
-
-  const beskikbaar = Math.max(0, bankOut - supTotaal);
-  document.getElementById('md-beskikbaar').textContent = fmt(beskikbaar);
-  document.getElementById('md-beskikbaar-sub').textContent =
-    bankOut > 0 ? `${fmt(bankOut)} − ${fmt(supTotaal)}` : 'Voer bedrae hierbo in';
-
-  const bRek = beskikbaar * BUCKET_SPLITS.rek;
-  const bSav = beskikbaar * BUCKET_SPLITS.sav;
-  const bOnd = beskikbaar * BUCKET_SPLITS.ond;
-  const bOnv = beskikbaar * BUCKET_SPLITS.onv;
-  document.getElementById('md-b-rek').textContent = fmt(bRek);
-  document.getElementById('md-b-sav').textContent = fmt(bSav);
-  document.getElementById('md-b-ond').textContent = fmt(bOnd);
-  document.getElementById('md-b-onv').textContent = fmt(bOnv);
-
-  const st = getBState();
-  const projectedRek = st.pots.rek + bRek;
-  const target = getCurrentBaseTotal();
-  const pct = Math.min(100, (projectedRek / target) * 100);
-  document.getElementById('md-maand-bar').style.width = pct.toFixed(1) + '%';
-  document.getElementById('md-maand-lbl').textContent = fmt(projectedRek) + ' / ' + fmt(target);
-  document.getElementById('md-nog-benodig').textContent = fmt(Math.max(0, target - projectedRek));
-
-  saveDraf();
-}
-
-function saveDraf() {
-  const draf = {
-    shop2shop: document.getElementById('md-shop2shop').value,
-    lone: document.getElementById('md-lone').value,
-    bankActual: document.getElementById('md-bank-actual').value,
-    faktuurCounts: faktuurCounts,
-    suppliers: {}
-  };
-  let hasContent = !!(draf.shop2shop || draf.bankActual);
-  FAKTUUR_KEYS.forEach(key => {
-    const wrap = document.getElementById('frows-' + key);
-    if (!wrap) return;
-    const rows = [];
-    wrap.querySelectorAll('.faktuur-row').forEach(row => {
-      const nrInput = row.querySelector('.faktuur-nr-input');
-      const amtInput = row.querySelector('.faktuur-input');
-      const nr = nrInput ? nrInput.value : '';
-      const amt = amtInput ? amtInput.value : '';
-      const paid = row.dataset.paid === '1';
-      if (nr || amt) hasContent = true;
-      rows.push({ nr, amt, paid });
+    decBtn.addEventListener('click', () => {
+      const v = Math.max(0, (parseInt(input.value || '0', 10) || 0) - 1);
+      input.value = v;
+      refreshSaveVisibility();
     });
-    draf.suppliers[key] = rows;
+    incBtn.addEventListener('click', () => {
+      const v = (parseInt(input.value || '0', 10) || 0) + 1;
+      input.value = v;
+      refreshSaveVisibility();
+    });
+    input.addEventListener('input', refreshSaveVisibility);
+
+    saveBtn.addEventListener('click', async () => {
+      const newQty = Math.max(0, parseInt(input.value || '0', 10) || 0);
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      try {
+        const res = await fetch(SCRIPT_URL + '?action=updateStock', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updateStock', sku: sku, inStock: newQty })
+        });
+        const json = await res.json();
+        if (json.status !== 'ok') throw new Error(json.message);
+        showToast(sku + ' stock updated to ' + newQty);
+        await loadStock();
+      } catch (err) {
+        showToast('Could not update stock: ' + err.message, true);
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+      }
+    });
   });
-  localStorage.setItem(KEYS.maandagDraf, JSON.stringify(draf));
-  const indicator = document.getElementById('draf-indicator');
-  if (indicator) indicator.style.display = hasContent ? 'block' : 'none';
 }
 
-function loadDraf() {
-  const stored = localStorage.getItem(KEYS.maandagDraf);
-  if (!stored) return;
-  let draf;
-  try { draf = JSON.parse(stored); } catch(e) { return; }
+function populateSkuSelects() {
+  const options = stockData.map(p =>
+    `<option value="${p.sku}">${p.sku} — ${p.product}</option>`
+  ).join('');
+  document.getElementById('priceSku').innerHTML = options;
+  updatePriceFieldsFromSku();
 
-  if (draf.shop2shop) document.getElementById('md-shop2shop').value = draf.shop2shop;
-  if (draf.lone) document.getElementById('md-lone').value = draf.lone;
-  if (draf.bankActual) document.getElementById('md-bank-actual').value = draf.bankActual;
+  // Suppliers vir datalist in Add Product
+  const suppliers = [...new Set(stockData.map(p => p.supplier).filter(Boolean))].sort();
+}
 
-  if (draf.faktuurCounts) {
-    faktuurCounts = draf.faktuurCounts;
-    localStorage.setItem(KEYS.faktuurCounts, JSON.stringify(faktuurCounts));
-    buildSupplierCards();
+// ---------- LOG SALE (Invoice builder) ----------
+let invoiceLines = [];
+
+// Miscellaneous item
+document.getElementById('miscAddBtn').addEventListener('click', () => {
+  const name = document.getElementById('miscName').value.trim();
+  const price = parseFloat(document.getElementById('miscPrice').value) || 0;
+  const qty = parseInt(document.getElementById('miscQty').value) || 1;
+
+  if (!name) { showToast('Enter a description', true); return; }
+  if (price === 0) { showToast('Enter a price', true); return; }
+
+  invoiceLines.push({
+    sku: 'MISC',
+    product: name,
+    supplier: 'MISC',
+    category: 'MISC',
+    retail: price,
+    qty,
+    discount: 0,
+    isMisc: true
+  });
+
+  document.getElementById('miscName').value = '';
+  document.getElementById('miscPrice').value = '';
+  document.getElementById('miscQty').value = '1';
+
+  renderInvoice();
+  showToast(name + ' added to invoice');
+});
+let lastInvoice = null;
+
+document.getElementById('productSearchInput').addEventListener('input', renderProductSearch);
+document.getElementById('productSearchInput').addEventListener('focus', renderProductSearch);
+
+function renderProductSearch() {
+  const term = document.getElementById('productSearchInput').value.trim().toLowerCase();
+  const container = document.getElementById('productSearchResults');
+
+  if (!term) {
+    container.innerHTML = '';
+    container.className = 'search-results empty-state';
+    return;
   }
 
-  if (draf.suppliers) {
-    FAKTUUR_KEYS.forEach(key => {
-      const rows = draf.suppliers[key];
-      if (!rows) return;
-      rows.forEach((r, i) => {
-        const n = i + 1;
-        const nrEl = document.getElementById('fn-' + key + '-' + n);
-        const amtEl = document.getElementById('f-' + key + '-' + n);
-        if (nrEl && r.nr) nrEl.value = r.nr;
-        if (amtEl && r.amt) amtEl.value = r.amt;
-        if (r.paid) {
-          const row = document.getElementById('frow-' + key + '-' + n);
-          if (row) {
-            row.dataset.paid = '1';
-            row.classList.add('paid');
-            const toggle = row.querySelector('.faktuur-paid-toggle');
-            if (toggle) toggle.textContent = '✅';
-          }
+  const matches = stockData.filter(p =>
+    p.product.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term)
+  ).slice(0, 20);
+
+  container.className = 'search-results';
+
+  if (matches.length === 0) {
+    container.innerHTML = '<div class="search-hint">No products match "' + term.replace(/</g,'') + '"</div>';
+    return;
+  }
+
+  container.innerHTML = matches.map(p => `
+    <div class="search-result-item" data-sku="${p.sku}">
+      <div class="sr-info">
+        <div class="sr-name">${p.product}</div>
+        <div class="sr-meta">${p.sku} &middot; ${p.supplier}</div>
+      </div>
+      <div class="sr-price">${fmtR(p.retail)}</div>
+      <button class="sr-add" type="button">&plus;</button>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.search-result-item').forEach(el => {
+    el.addEventListener('click', () => addProductToInvoice(el.dataset.sku));
+  });
+}
+
+function addProductToInvoice(sku) {
+  const product = stockData.find(p => p.sku === sku);
+  if (!product) return;
+
+  // Starting a new invoice — hide the previous one's "generate" button/note
+  document.getElementById('generateInvoiceBtn').style.display = 'none';
+  document.getElementById('invoiceSuccessNote').style.display = 'none';
+
+  const existing = invoiceLines.find(l => l.sku === sku);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    invoiceLines.push({
+      sku: product.sku,
+      supplier: product.supplier,
+      category: product.category,
+      product: product.product,
+      qty: 1,
+      price: product.retail,
+      discountType: 'None',
+      discountValue: 0
+    });
+  }
+  renderInvoiceLines();
+
+  // Clear the search so staff can immediately search the next item
+  document.getElementById('productSearchInput').value = '';
+  document.getElementById('productSearchResults').innerHTML = '';
+  document.getElementById('productSearchResults').className = 'search-results empty-state';
+  showToast(product.product + ' added to invoice');
+}
+
+function lineTotal(line) {
+  const base = line.qty * line.price;
+  if (line.discountType === 'Percent') {
+    return Math.max(0, base * (1 - (line.discountValue / 100)));
+  } else if (line.discountType === 'Rand') {
+    return Math.max(0, base - line.discountValue);
+  }
+  return base;
+}
+
+function renderInvoiceLines() {
+  const container = document.getElementById('invoiceLines');
+  if (invoiceLines.length === 0) {
+    container.innerHTML = '<div class="empty"><b>No items yet</b>Choose a product above and tap "+ Add Item".</div>';
+    updateInvoiceTotals();
+    return;
+  }
+
+  container.innerHTML = invoiceLines.map((line, idx) => `
+    <div class="invoice-line" data-idx="${idx}">
+      <div class="invoice-line-top">
+        <div>
+          <div class="invoice-line-title">${line.product}</div>
+          <div class="invoice-line-sub">${line.sku} &middot; ${line.supplier}</div>
+        </div>
+        <button class="remove-line" data-action="remove">&times;</button>
+      </div>
+      <div class="invoice-line-grid">
+        <div class="field">
+          <label>Qty</label>
+          <input type="number" min="1" value="${line.qty}" data-field="qty" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Price (R)</label>
+          <input type="number" min="0" value="${line.price}" data-field="price" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label>Discount</label>
+          <select data-field="discountType">
+            <option value="None" ${line.discountType === 'None' ? 'selected' : ''}>None</option>
+            <option value="Percent" ${line.discountType === 'Percent' ? 'selected' : ''}>%</option>
+            <option value="Rand" ${line.discountType === 'Rand' ? 'selected' : ''}>R</option>
+          </select>
+        </div>
+      </div>
+      ${line.discountType !== 'None' ? `
+      <div class="invoice-line-grid" style="grid-template-columns:1fr;">
+        <div class="field">
+          <label>Discount ${line.discountType === 'Percent' ? '(%)' : '(R)'}</label>
+          <input type="number" min="0" value="${line.discountValue}" data-field="discountValue" inputmode="decimal">
+        </div>
+      </div>` : ''}
+      <div class="line-total">
+        <span>Line Total</span>
+        <span class="lt-val">${fmtR(lineTotal(line))}</span>
+      </div>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.invoice-line').forEach(el => {
+    const idx = parseInt(el.dataset.idx, 10);
+
+    el.querySelector('[data-action="remove"]').addEventListener('click', () => {
+      invoiceLines.splice(idx, 1);
+      renderInvoiceLines();
+    });
+
+    el.querySelectorAll('[data-field]').forEach(input => {
+      input.addEventListener('input', () => {
+        const field = input.dataset.field;
+        let val = input.value;
+        if (field === 'qty') invoiceLines[idx].qty = Math.max(1, parseInt(val, 10) || 1);
+        else if (field === 'price') invoiceLines[idx].price = parseFloat(val) || 0;
+        else if (field === 'discountValue') invoiceLines[idx].discountValue = parseFloat(val) || 0;
+        else if (field === 'discountType') {
+          invoiceLines[idx].discountType = val;
+          invoiceLines[idx].discountValue = 0;
+          renderInvoiceLines();
+          return;
         }
+        updateInvoiceTotals();
+        const totalEl = el.querySelector('.lt-val');
+        if (totalEl) totalEl.textContent = fmtR(lineTotal(invoiceLines[idx]));
       });
     });
-  }
-}
-
-function clearDraf() {
-  localStorage.removeItem(KEYS.maandagDraf);
-  const indicator = document.getElementById('draf-indicator');
-  if (indicator) indicator.style.display = 'none';
-}
-
-function useCalculatedBank() {
-  document.getElementById('md-bank-actual').value = '';
-  mdRecalc();
-  showToast('↺ Berekende bedrag herstel');
-}
-
-function getWeekInvordering() {
-  const h = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  const day = now.getDay();
-  const diff = day === 0 ? 6 : day - 1; // Monday start
-  startOfWeek.setDate(now.getDate() - diff);
-  startOfWeek.setHours(0,0,0,0);
-  let tot = 0;
-  h.forEach(e => {
-    const d = new Date(e.date);
-    if (d >= startOfWeek) { tot += e.tot || 0; }
   });
-  return { tot };
+
+  updateInvoiceTotals();
 }
 
-function renderWeekOpsomming() {
-  const h = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  const day = now.getDay();
-  const diff = day === 0 ? 6 : day - 1; // Monday start
-  startOfWeek.setDate(now.getDate() - diff);
-  startOfWeek.setHours(0,0,0,0);
+function updateInvoiceTotals() {
+  const subtotal = invoiceLines.reduce((s, l) => s + (l.qty * l.price), 0);
+  const grandTotal = invoiceLines.reduce((s, l) => s + lineTotal(l), 0);
+  const discount = subtotal - grandTotal;
+  document.getElementById('invSubtotal').textContent = fmtR(subtotal);
+  document.getElementById('invDiscount').textContent = '−' + fmtR(discount);
+  document.getElementById('invGrandTotal').textContent = fmtR(grandTotal);
+}
 
-  const weekEntries = h.filter(e => new Date(e.date) >= startOfWeek);
-  const dn = ['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag'];
-  const el = document.getElementById('week-opsomming-list');
-  let weekTotaal = 0;
+document.getElementById('logInvoiceBtn').addEventListener('click', async () => {
+  if (invoiceLines.length === 0) {
+    showToast('Add at least one item to the invoice', true);
+    return;
+  }
 
-  if (!weekEntries.length) {
-    el.innerHTML = '<div class="empty-state">Nog niks gestoor hierdie week nie.</div>';
+  const btn = document.getElementById('logInvoiceBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=logInvoice', {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'logInvoice',
+        date: new Date().toISOString(),
+        paymentMethod: document.getElementById('salePayment').value,
+        notes: document.getElementById('saleNotes').value,
+        lines: invoiceLines.map(l => ({
+          sku: l.sku,
+          supplier: l.supplier,
+          category: l.category,
+          product: l.product,
+          qtySold: l.qty,
+          retailPrice: l.price,
+          discountType: l.discountType,
+          discountValue: l.discountValue
+        }))
+      })
+    });
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message);
+
+    // Snapshot this invoice's details BEFORE clearing invoiceLines, so the
+    // "Generate Invoice (PDF)" button can still build the receipt afterwards.
+    lastInvoice = {
+      invoiceNo: json.invoiceNo || '',
+      date: new Date(),
+      paymentMethod: document.getElementById('salePayment').value,
+      notes: document.getElementById('saleNotes').value,
+      lines: invoiceLines.map(l => ({ ...l })),
+      subtotal: invoiceLines.reduce((s, l) => s + (l.qty * l.price), 0),
+      discount: invoiceLines.reduce((s, l) => {
+        const lineTotal = l.qty * l.price;
+        if (l.discountType === 'Percent') return s + lineTotal * (l.discountValue / 100);
+        if (l.discountType === 'Rand') return s + l.discountValue;
+        return s;
+      }, 0)
+    };
+    lastInvoice.total = lastInvoice.subtotal - lastInvoice.discount;
+
+    document.getElementById('lastInvoiceNo').textContent = lastInvoice.invoiceNo;
+    document.getElementById('invoiceSuccessNote').style.display = 'block';
+    document.getElementById('generateInvoiceBtn').style.display = 'block';
+
+    showToast('Invoice ' + (json.invoiceNo || '') + ' logged — stock updated');
+    invoiceLines = [];
+    document.getElementById('saleNotes').value = '';
+    renderInvoiceLines();
+    await loadStock();
+  } catch (err) {
+    showToast('Could not log invoice: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Log Invoice & Update Stock';
+  }
+});
+
+renderInvoiceLines();
+
+// ---------- GENERATE INVOICE (PDF receipt) ----------
+const STORE_INFO = {
+  name: 'Garden Route Green',
+  address: '21 Mascodor Street, Voorbaai, Mossel Bay, 6506',
+  phone: '+27 83 603 0224',
+  email: 'alindaf@gmail.com',
+  website: 'gardenroutegreen.com'
+};
+
+function buildInvoicePdf(inv) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginX = 40;
+  let y = 50;
+
+  // Logo wordmark: "Garden" (dark) + "Route" (green) + "Green" (dark)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(20, 30, 22);
+  doc.text('Garden', marginX, y);
+  const gardenWidth = doc.getTextWidth('Garden');
+  doc.setTextColor(60, 150, 90);
+  doc.text('Route', marginX + gardenWidth, y);
+  const routeWidth = doc.getTextWidth('Route');
+  doc.setTextColor(20, 30, 22);
+  doc.text('Green', marginX + gardenWidth + routeWidth, y);
+
+  y += 18;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(90, 90, 90);
+  doc.text(STORE_INFO.address, marginX, y);
+  y += 12;
+  doc.text(STORE_INFO.phone + '  ·  ' + STORE_INFO.email, marginX, y);
+  y += 12;
+  doc.text(STORE_INFO.website, marginX, y);
+
+  // Receipt title + invoice meta, right-aligned
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(20, 30, 22);
+  doc.text('RECEIPT', pageWidth - marginX, 50, { align: 'right' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(90, 90, 90);
+  doc.text('Invoice No: ' + inv.invoiceNo, pageWidth - marginX, 66, { align: 'right' });
+  doc.text('Date: ' + inv.date.toLocaleDateString('en-ZA') + ' ' + inv.date.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }), pageWidth - marginX, 78, { align: 'right' });
+  doc.text('Payment Method: ' + inv.paymentMethod, pageWidth - marginX, 90, { align: 'right' });
+
+  y = 110;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(marginX, y, pageWidth - marginX, y);
+  y += 22;
+
+  // Table header
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(20, 30, 22);
+  doc.text('PRODUCT', marginX, y);
+  doc.text('QTY', pageWidth - marginX - 170, y, { align: 'right' });
+  doc.text('PRICE', pageWidth - marginX - 90, y, { align: 'right' });
+  doc.text('TOTAL', pageWidth - marginX, y, { align: 'right' });
+  y += 8;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(marginX, y, pageWidth - marginX, y);
+  y += 16;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(40, 40, 40);
+  inv.lines.forEach(line => {
+    const lineTotal = line.qty * line.price;
+    const nameLines = doc.splitTextToSize(line.product, 280);
+    doc.text(nameLines, marginX, y);
+    doc.text(String(line.qty), pageWidth - marginX - 170, y, { align: 'right' });
+    doc.text('R' + line.price.toFixed(2), pageWidth - marginX - 90, y, { align: 'right' });
+    doc.text('R' + lineTotal.toFixed(2), pageWidth - marginX, y, { align: 'right' });
+    y += Math.max(16, nameLines.length * 12 + 4);
+  });
+
+  y += 8;
+  doc.setDrawColor(200, 200, 200);
+  doc.line(marginX, y, pageWidth - marginX, y);
+  y += 20;
+
+  // Totals block, right-aligned
+  doc.setFontSize(10);
+  doc.setTextColor(90, 90, 90);
+  doc.text('Subtotal', pageWidth - marginX - 90, y, { align: 'right' });
+  doc.text('R' + inv.subtotal.toFixed(2), pageWidth - marginX, y, { align: 'right' });
+  y += 16;
+  if (inv.discount > 0) {
+    doc.text('Discount', pageWidth - marginX - 90, y, { align: 'right' });
+    doc.text('-R' + inv.discount.toFixed(2), pageWidth - marginX, y, { align: 'right' });
+    y += 16;
+  }
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(20, 30, 22);
+  doc.text('TOTAL', pageWidth - marginX - 90, y, { align: 'right' });
+  doc.text('R' + inv.total.toFixed(2), pageWidth - marginX, y, { align: 'right' });
+  y += 30;
+
+  if (inv.notes) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(90, 90, 90);
+    doc.text('Notes: ' + inv.notes, marginX, y);
+    y += 20;
+  }
+
+  y += 10;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(marginX, y, pageWidth - marginX, y);
+  y += 18;
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+  doc.text('Thank you for visiting Garden Route Green!', marginX, y);
+
+  return doc;
+}
+
+document.getElementById('generateInvoiceBtn').addEventListener('click', async () => {
+  if (!lastInvoice) {
+    showToast('No invoice to generate', true);
+    return;
+  }
+  const btn = document.getElementById('generateInvoiceBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+    const doc = buildInvoicePdf(lastInvoice);
+    const fileName = 'GRG-Receipt-' + lastInvoice.invoiceNo + '.pdf';
+    const pdfBlob = doc.output('blob');
+    const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+    // Prefer native share sheet (lets the person pick WhatsApp directly)
+    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      await navigator.share({
+        files: [pdfFile],
+        title: 'Receipt ' + lastInvoice.invoiceNo,
+        text: 'Receipt from Garden Route Green — ' + lastInvoice.invoiceNo
+      });
+    } else {
+      // Fallback: just download the PDF, person attaches it manually
+      doc.save(fileName);
+      showToast('PDF downloaded — share it manually via WhatsApp');
+    }
+  } catch (err) {
+    // AbortError happens if the person cancels the share sheet — not a real error
+    if (err.name !== 'AbortError') {
+      showToast('Could not generate receipt: ' + err.message, true);
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Invoice (PDF)';
+  }
+});
+
+// ---------- REORDER / PURCHASE ORDER ----------
+let poLines = [];
+let poCourier = false;
+let poSelectedItems = []; // Items wat gebruiker gekies het
+
+// Soek produkte
+function poFilterProducts() {
+  const q = document.getElementById('poSearch').value.trim().toLowerCase();
+  const resultsEl = document.getElementById('poSearchResults');
+  if (q.length < 2) { resultsEl.style.display = 'none'; return; }
+
+  const matches = stockData.filter(p =>
+    (p.product || '').toLowerCase().includes(q) ||
+    (p.sku || '').toLowerCase().includes(q) ||
+    (p.category || '').toLowerCase().includes(q)
+  ).slice(0, 15);
+
+  if (matches.length === 0) { resultsEl.style.display = 'none'; return; }
+
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = matches.map(p => `
+    <div onclick="poAddItem('${p.sku}')" style="padding:10px 12px; cursor:pointer; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-weight:600; font-size:14px;">${p.product}</div>
+        <div style="font-size:11px; color:var(--muted);">${p.sku} · ${p.supplier}</div>
+      </div>
+      <div style="font-size:13px; font-weight:700; color:var(--leaf);">${fmtR(p.purchase || 0)}</div>
+    </div>
+  `).join('');
+}
+
+function poAddItem(sku) {
+  const product = stockData.find(p => p.sku === sku);
+  if (!product) return;
+
+  const existing = poSelectedItems.find(i => i.sku === sku);
+  if (existing) {
+    existing.qty++;
   } else {
-    // oldest first for the week view
-    const sorted = [...weekEntries].reverse();
-    el.innerHTML = sorted.map(e => {
-      const d = new Date(e.date);
-      weekTotaal += e.tot || 0;
-      const roeteNames = (e.roetes || []).map(r => r.naam).filter(Boolean).join(' + ') || 'Roete';
-      return `<div class="week-op-row">
-        <div>
-          <div class="week-op-date">${e.dagNaam || dn[d.getDay()]}</div>
-          <div class="week-op-sub">${roeteNames}</div>
-        </div>
-        <div class="week-op-amt">${fmt(e.tot)}</div>
-      </div>`;
-    }).join('');
+    poSelectedItems.push({ sku, product: product.product, supplier: product.supplier, purchase: parseFloat(product.purchase) || 0, qty: 1 });
   }
-  if (weekEntries.length) {
-    weekTotaal = weekEntries.reduce((s, e) => s + (e.tot || 0), 0);
-  }
-  document.getElementById('week-opsomming-totaal').textContent = fmt(weekTotaal);
+
+  document.getElementById('poSearch').value = '';
+  document.getElementById('poSearchResults').style.display = 'none';
+  poRenderSelected();
+  showToast(product.product + ' added to order');
 }
 
-function confirmSaveMaandag() {
-  if (confirm('Is jy seker jy is KLAAR met die hele Maandag Afrekening?\n\nDit sal die bedrae permanent by die Begroting buckets voeg. As jy nog nie al die fakture klaar ingetik het nie, klik Cancel en gaan voort om in te tik — jou inset word outomaties gestoor.')) {
-    saveMaandag();
+function poRenderSelected() {
+  const card = document.getElementById('poSelectedCard');
+  const linesEl = document.getElementById('poSelectedLines');
+
+  if (poSelectedItems.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  linesEl.innerHTML = poSelectedItems.map((item, idx) => `
+    <div style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border);">
+      <div style="flex:1;">
+        <div style="font-weight:600; font-size:13px;">${item.product}</div>
+        <div style="font-size:11px; color:var(--muted);">${item.supplier} · ${fmtR(item.purchase)} each</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button onclick="poChangeQty(${idx}, -1)" style="background:var(--surface-2); border:none; border-radius:6px; width:28px; height:28px; font-size:16px; cursor:pointer;">−</button>
+        <span style="font-weight:700; min-width:24px; text-align:center;">${item.qty}</span>
+        <button onclick="poChangeQty(${idx}, 1)" style="background:var(--surface-2); border:none; border-radius:6px; width:28px; height:28px; font-size:16px; cursor:pointer;">+</button>
+        <button onclick="poRemoveItem(${idx})" style="background:none; border:none; color:var(--reorder); font-size:18px; cursor:pointer;">×</button>
+      </div>
+      <div style="font-weight:700; min-width:60px; text-align:right;">${fmtR(item.purchase * item.qty)}</div>
+    </div>
+  `).join('');
+
+  poUpdateTotals();
+}
+
+function poChangeQty(idx, delta) {
+  poSelectedItems[idx].qty = Math.max(1, poSelectedItems[idx].qty + delta);
+  poRenderSelected();
+}
+
+function poRemoveItem(idx) {
+  poSelectedItems.splice(idx, 1);
+  poRenderSelected();
+}
+
+function poUpdateTotals() {
+  const subtotal = poSelectedItems.reduce((s, i) => s + (i.purchase * i.qty), 0);
+  const courierFee = poCourier ? (parseFloat(document.getElementById('poCourierFee').value) || 0) : 0;
+  const total = subtotal + courierFee;
+  const count = poSelectedItems.reduce((s, i) => s + i.qty, 0);
+
+  document.getElementById('poItemCount').textContent = count;
+  document.getElementById('poGrandTotal').textContent = fmtR(total);
+
+  const courierRow = document.getElementById('poCourierRow');
+  if (poCourier && courierFee > 0) {
+    courierRow.style.display = 'flex';
+    document.getElementById('poCourierDisplay').textContent = fmtR(courierFee);
+  } else {
+    courierRow.style.display = 'none';
   }
 }
 
-function saveMaandag() {
-  const weekData = getWeekInvordering();
-  const weekTot = weekData.tot;
-  const shop2shop = parseFloat(document.getElementById('md-shop2shop').value) || 0;
-  const lone = parseFloat(document.getElementById('md-lone').value) || 0;
-  const harvest = somSupplier('harvest');
-  const harvestFakture = getSupplierFakture('harvest');
-  const bankCalculated = Math.max(0, weekTot + shop2shop - lone - harvest);
-  const bankField = document.getElementById('md-bank-actual');
-  const bankOut = bankField.value !== '' ? (parseFloat(bankField.value) || 0) : bankCalculated;
-  if (weekTot + shop2shop <= 0) { showToast('⚠️ Geen invordering of Shop2Shop bedrag nie'); return; }
+document.getElementById('poCourierNo').addEventListener('click', () => {
+  poCourier = false;
+  document.getElementById('poCourierNo').classList.add('active');
+  document.getElementById('poCourierYes').classList.remove('active');
+  document.getElementById('poCourierFeeField').style.display = 'none';
+  poUpdateTotals();
+});
 
-  const suppliers = {};
-  const supplierFakture = {};
-  let supTotaal = 0;
-  KONTANT_SUPPLIERS.forEach(name => {
-    const key = supKey(name);
-    const t = somSupplier(key);
-    suppliers[name] = t;
-    supplierFakture[name] = getSupplierFakture(key);
-    supTotaal += t;
+document.getElementById('poCourierYes').addEventListener('click', () => {
+  poCourier = true;
+  document.getElementById('poCourierYes').classList.add('active');
+  document.getElementById('poCourierNo').classList.remove('active');
+  document.getElementById('poCourierFeeField').style.display = 'block';
+  poUpdateTotals();
+});
+
+document.getElementById('poCustomAddBtn').addEventListener('click', () => {
+  const name = document.getElementById('poCustomName').value.trim();
+  const price = parseFloat(document.getElementById('poCustomPrice').value) || 0;
+  const qty = parseInt(document.getElementById('poCustomQty').value) || 1;
+  const supplier = document.getElementById('poCustomSupplier').value.trim() || 'Custom';
+
+  if (!name) { showToast('Enter a product name', true); return; }
+  if (price === 0) { showToast('Enter a price', true); return; }
+
+  poSelectedItems.push({ sku: 'CUSTOM', product: name, supplier, purchase: price, qty });
+
+  // Clear fields
+  document.getElementById('poCustomName').value = '';
+  document.getElementById('poCustomPrice').value = '';
+  document.getElementById('poCustomQty').value = '1';
+  document.getElementById('poCustomSupplier').value = '';
+
+  poRenderSelected();
+  showToast(name + ' added to order');
+});
+
+// Vul supplier datalist
+function poFillSupplierDatalist() {
+  const suppliers = [...new Set(stockData.map(p => p.supplier).filter(Boolean))].sort();
+  document.getElementById('poCustomSupplierList').innerHTML = suppliers.map(s => `<option value="${s}">`).join('');
+}
+
+document.getElementById('poClearBtn').addEventListener('click', () => {
+  poRenderSelected();
+});
+
+document.getElementById('generatePoBtn').addEventListener('click', () => {
+  if (poSelectedItems.length === 0) { showToast('No items in order', true); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const today = new Date().toLocaleDateString('en-ZA');
+
+  // Groepeer per verskaffer
+  const bySupplier = {};
+  poSelectedItems.forEach(item => {
+    if (!bySupplier[item.supplier]) bySupplier[item.supplier] = [];
+    bySupplier[item.supplier].push(item);
   });
 
-  const beskikbaar = Math.max(0, bankOut - supTotaal);
-  const bRek = beskikbaar * BUCKET_SPLITS.rek;
-  const bSav = beskikbaar * BUCKET_SPLITS.sav;
-  const bOnd = beskikbaar * BUCKET_SPLITS.ond;
-  const bOnv = beskikbaar * BUCKET_SPLITS.onv;
+  let y = 20;
+  doc.setFontSize(18);
+  doc.setTextColor(46, 125, 79);
+  doc.text('Garden Route Green', 14, y);
+  y += 8;
+  doc.setFontSize(11);
+  doc.setTextColor(100, 100, 100);
+  doc.text('PURCHASE ORDER — ' + today, 14, y);
+  y += 12;
 
-  const entry = { date: new Date().toISOString(), weekTot, shop2shop, lone, harvest, harvestFakture, bankOut, suppliers, supplierFakture, supTotaal, beskikbaar, bRek, bSav, bOnd, bOnv };
-  const h = JSON.parse(localStorage.getItem(KEYS.maandag) || '[]');
-  h.unshift(entry);
-  localStorage.setItem(KEYS.maandag, JSON.stringify(h));
-  cloudSave('maandag', entry);
+  Object.entries(bySupplier).forEach(([supplier, items]) => {
+    doc.setFontSize(13);
+    doc.setTextColor(46, 125, 79);
+    doc.text(supplier, 14, y);
+    y += 7;
 
-  const st = getBState();
-  st.pots.rek += bRek; st.pots.sav += bSav; st.pots.ond += bOnd; st.pots.onv += bOnv;
-  st.lone += lone;
-  setBState(st);
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    items.forEach(item => {
+      const line = `${item.qty}x  ${item.product}`;
+      const amt = fmtR(item.purchase * item.qty);
+      doc.text(line, 14, y);
+      doc.text(amt, 196, y, { align: 'right' });
+      y += 6;
+    });
 
-  showToast('✅ Maandag Afrekening Gestoor! (Sigbaar in Begroting & Log)');
-  clearDraf();
-
-  document.getElementById('md-shop2shop').value = '';
-  document.getElementById('md-bank-actual').value = '';
-  FAKTUUR_KEYS.forEach(key => {
-    faktuurCounts[key] = 1;
+    const supplierTotal = items.reduce((s, i) => s + (i.purchase * i.qty), 0);
+    doc.setFontSize(11);
+    doc.setTextColor(46, 125, 79);
+    doc.text('Subtotal: ' + fmtR(supplierTotal), 196, y, { align: 'right' });
+    y += 10;
   });
-  localStorage.setItem(KEYS.faktuurCounts, JSON.stringify(faktuurCounts));
-  buildSupplierCards();
-  mdRecalc();
-  loadMaandagHistory();
+
+  const courierFee = poCourier ? (parseFloat(document.getElementById('poCourierFee').value) || 0) : 0;
+  const grandTotal = poSelectedItems.reduce((s, i) => s + (i.purchase * i.qty), 0) + courierFee;
+
+  if (courierFee > 0) {
+    doc.setFontSize(11);
+    doc.setTextColor(0,0,0);
+    doc.text('Courier: ' + fmtR(courierFee), 196, y, { align: 'right' });
+    y += 7;
+  }
+
+  doc.setFontSize(13);
+  doc.setTextColor(46, 125, 79);
+  doc.text('TOTAL: ' + fmtR(grandTotal), 196, y, { align: 'right' });
+
+  const pdfBlob = doc.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  if (navigator.share) {
+    const file = new File([pdfBlob], 'PurchaseOrder_' + today + '.pdf', { type: 'application/pdf' });
+    navigator.share({ title: 'Purchase Order', files: [file] }).catch(() => window.open(pdfUrl, '_blank'));
+  } else {
+    window.open(pdfUrl, '_blank');
+  }
+});
+
+
+// ---------- ADD PRODUCT ----------
+const SKU_PREFIXES = {
+  'AWAKEN': 'AWK',
+  'LIFTED': 'LFT',
+  'GREENESSENCE': 'GRE',
+  'CANNABIS SHOP': 'GRG',
+  'From The Barkery': 'BRK',
+  'Wicked Imports': 'WIK'
+};
+
+const CATEGORY_CODES = {
+  'CREAMS': 'CRE', 'VAPES': 'VAP', 'GUMMIES': 'GUM', 'EDIBLES': 'EDI',
+  'TINCTURES': 'TIN', 'TRAVELERS': 'TRA', 'DRINKS': 'DRK', 'SMOKING': 'SMK',
+  'PETS': 'PET', 'BATH': 'BTH', 'GIFTS': 'GFT', 'BUNDLES': 'BDL',
+  'CANDIES': 'CAN', 'BAKED GOODS': 'BAK', 'OIL/BOOSTER': 'OIL',
+  '1ML': '1ML', '3ML': '3ML', 'AWAKEN 1ML ETCHED': 'AWA'
+};
+
+function apUpdateMargin() {
+  const purchase = parseFloat(document.getElementById('apPurchase').value) || 0;
+  const retail = parseFloat(document.getElementById('apRetail').value) || 0;
+  const preview = document.getElementById('apMarginPreview');
+  if (purchase > 0 && retail > 0) {
+    const profit = retail - purchase;
+    const margin = (profit / retail * 100).toFixed(1);
+    document.getElementById('apMarginPct').textContent = margin + '%';
+    document.getElementById('apProfitAmt').textContent = fmtR(profit);
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
 }
 
-// ══════════════════════════════════════
-// BEGROTING
-// ══════════════════════════════════════
-function getBState() {
-  return JSON.parse(localStorage.getItem(KEYS.budget) || JSON.stringify({ lone:0, pots:{rek:0,sav:0,ond:0,onv:0}, paid:{} }));
-}
-function setBState(st) {
-  localStorage.setItem(KEYS.budget, JSON.stringify(st));
-  cloudSave('budget', st);
+document.getElementById('apPurchase').addEventListener('input', apUpdateMargin);
+document.getElementById('apRetail').addEventListener('input', apUpdateMargin);
+
+// verskaffer is nou 'n text input met datalist — geen event listener nodig nie
+
+document.getElementById('apSkuGenBtn').addEventListener('click', () => {
+  const supplier = document.getElementById('apSupplierText').value.trim();
+  const category = document.getElementById('apCategory').value.trim().toUpperCase();
+  if (!supplier || !category) {
+    showToast('Kies eers verskaffer en kategorie', true);
+    return;
+  }
+  const prefix = SKU_PREFIXES[supplier] || 'GRG';
+  const catCode = CATEGORY_CODES[category] || category.substring(0, 3);
+  // Find next available number by checking existing SKUs
+  const existingNums = stockData
+    .map(p => p.sku)
+    .filter(s => s && s.startsWith(prefix + '-' + catCode + '-'))
+    .map(s => parseInt(s.split('-').pop()) || 0);
+  const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
+  document.getElementById('apSku').value = prefix + '-' + catCode + '-' + String(nextNum).padStart(3, '0');
+});
+
+document.getElementById('apSaveBtn').addEventListener('click', async () => {
+  const supplier = document.getElementById('apSupplierText').value.trim();
+  const category = document.getElementById('apCategory').value.trim();
+  const product = document.getElementById('apProduct').value.trim();
+  const sku = document.getElementById('apSku').value.trim().toUpperCase();
+  const inStock = document.getElementById('apInStock').value || '0';
+  const minLevel = document.getElementById('apMinLevel').value || '0';
+  const purchase = document.getElementById('apPurchase').value || '0';
+  const retail = document.getElementById('apRetail').value || '0';
+
+  if (!supplier || !category || !product || !sku) {
+    showToast('Vul asseblief verskaffer, kategorie, naam en SKU in', true);
+    return;
+  }
+
+  // Check for duplicate SKU
+  if (stockData.find(p => p.sku === sku)) {
+    showToast('Hierdie SKU bestaan reeds: ' + sku, true);
+    return;
+  }
+
+  const btn = document.getElementById('apSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  const status = document.getElementById('apStatus');
+  status.style.display = 'block';
+  status.style.color = 'var(--muted)';
+  status.textContent = '⏳ Besig om produk te stoor...';
+
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=bulkAddStock', {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'bulkAddStock',
+        rows: [{
+          sku, supplier, category, product,
+          inStock: parseInt(inStock),
+          minLevel: parseInt(minLevel),
+          orderQty: 0,
+          purchase: parseFloat(purchase),
+          retail: parseFloat(retail)
+        }]
+      })
+    });
+
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Onbekende fout');
+
+    if (json.skippedDuplicates && json.skippedDuplicates.length > 0) {
+      status.style.color = 'var(--resin)';
+      status.textContent = '⚠️ SKU bestaan reeds — nie gestoor nie.';
+    } else {
+      status.style.color = 'var(--leaf)';
+      status.textContent = '✅ ' + product + ' (' + sku + ') suksesvol gestoor!';
+
+      // Clear form
+      ['apCategory','apProduct','apSku','apInStock','apMinLevel','apPurchase','apRetail']
+        .forEach(id => { document.getElementById(id).value = ''; });
+      document.getElementById('apSupplierText').value = '';
+      document.getElementById('apMarginPreview').style.display = 'none';
+
+      // Reload stock
+      await loadStock();
+      showToast(product + ' bygevoeg!');
+    }
+  } catch (err) {
+    status.style.color = 'var(--reorder)';
+    status.textContent = '❌ Fout: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save New Product';
+  }
+});
+
+// ---------- CASH COUNT ----------
+const DENOMINATIONS = [
+  { label: 'R200', value: 200 },
+  { label: 'R100', value: 100 },
+  { label: 'R50', value: 50 },
+  { label: 'R20', value: 20 },
+  { label: 'R10', value: 10 },
+  { label: 'R5', value: 5 },
+  { label: 'R2', value: 2 },
+  { label: 'R1', value: 1 },
+  { label: '50c', value: 0.5 },
+];
+
+let cashCountDayIndex = 0;
+let cashCountTarget = 'finance';
+
+function openCashCountModal() {
+  const modal = document.getElementById('cashCountModal');
+  const rowsEl = document.getElementById('cashCountRows');
+  rowsEl.innerHTML = DENOMINATIONS.map(d => `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <span style="font-weight:600; min-width:50px;">${d.label}</span>
+      <input type="number" min="0" value="0" data-val="${d.value}"
+        style="width:80px; text-align:center;"
+        oninput="updateCashCountTotal()">
+    </div>
+  `).join('');
+  document.getElementById('cashCountTotal').textContent = 'R0';
+  modal.style.display = 'block';
 }
 
-function renderBudget() {
-  const st = getBState();
-  const target = getCurrentBaseTotal();
-  document.getElementById('bg-totale-verplig').textContent = fmt(target);
-  document.getElementById('bg-lone-maand').textContent = fmt(140000);
-  document.getElementById('bg-opgebou').textContent = fmt(st.pots.rek);
-  document.getElementById('bg-nodig').textContent = fmt(Math.max(0, target - st.pots.rek));
-  const pct = Math.min(100, (st.pots.rek / target) * 100);
-  document.getElementById('bg-bar').style.width = pct.toFixed(1) + '%';
-  document.getElementById('bg-pct').textContent = pct.toFixed(1) + '% gedek';
-  document.querySelectorAll('.bg-target-label').forEach(el => el.textContent = 'Teiken: ' + fmt(target));
-
-  document.getElementById('bg-t-rek').textContent = fmt(st.pots.rek);
-  document.getElementById('bg-t-sav').textContent = fmt(st.pots.sav);
-  document.getElementById('bg-t-ond').textContent = fmt(st.pots.ond);
-  document.getElementById('bg-t-onv').textContent = fmt(st.pots.onv);
-
-  renderRekList('rl-suppliers', BDATA.suppliers, st);
-  renderRekList('rl-debiet', BDATA.debiet, st);
-  renderRekList('rl-gewone', BDATA.gewone, st);
+function updateCashCountTotal() {
+  let total = 0;
+  document.querySelectorAll('#cashCountRows input').forEach(input => {
+    total += (parseFloat(input.value) || 0) * parseFloat(input.dataset.val);
+  });
+  document.getElementById('cashCountTotal').textContent = fmtR(total);
 }
 
-function getCustomAmounts() {
-  return JSON.parse(localStorage.getItem(KEYS.customAmounts) || '{}');
-}
-function setCustomAmount(name, val) {
-  const ca = getCustomAmounts();
-  ca[name] = val;
-  localStorage.setItem(KEYS.customAmounts, JSON.stringify(ca));
-}
-function getItemAmount(item) {
-  const ca = getCustomAmounts();
-  return ca.hasOwnProperty(item.name) ? ca[item.name] : item.amt;
+document.getElementById('finCountOpenBtn').addEventListener('click', () => {
+  cashCountTarget = 'opening';
+  openCashCountModal();
+});
+
+document.getElementById('finCountBtn').addEventListener('click', () => {
+  cashCountTarget = 'closing';
+  openCashCountModal();
+});
+
+document.getElementById('cashCountClose').addEventListener('click', () => {
+  document.getElementById('cashCountModal').style.display = 'none';
+});
+
+document.getElementById('cashCountUse').addEventListener('click', () => {
+  let total = 0;
+  document.querySelectorAll('#cashCountRows input').forEach(input => {
+    const qty = parseFloat(input.value) || 0;
+    const val = parseFloat(input.dataset.val) || 0;
+    total += qty * val;
+  });
+  total = Math.round(total * 100) / 100;
+  if (cashCountTarget === 'opening') {
+    document.getElementById('finOpening').value = total;
+    updateFinDagPreview();
+  } else {
+    document.getElementById('finKontant').value = total;
+    updateFinDagPreview();
+  }
+  document.getElementById('cashCountModal').style.display = 'none';
+  showToast('Cash counted: ' + fmtR(total));
+});
+
+// ---------- PRICE UPDATE ----------
+document.getElementById('priceSku').addEventListener('change', updatePriceFieldsFromSku);
+document.getElementById('pricePurchase').addEventListener('input', updateMarginPreview);
+document.getElementById('priceRetail').addEventListener('input', updateMarginPreview);
+
+
+function updatePriceFieldsFromSku() {
+  const sku = document.getElementById('priceSku').value;
+  const product = stockData.find(p => p.sku === sku);
+  if (product) {
+    document.getElementById('pricePurchase').value = product.purchase;
+    document.getElementById('priceRetail').value = product.retail;
+  }
+  updateMarginPreview();
 }
 
-function renderRekList(id, items, st) {
-  const el = document.getElementById(id);
-  const ca = getCustomAmounts();
-  let tot = 0;
-  el.innerHTML = '<div class="rek-list">' +
-    items.map(it => {
-      const paid = st.paid && st.paid[it.name];
-      const key = it.name.replace(/'/g,"\\'");
-      const amt = getItemAmount(it);
-      tot += amt;
-      return `<div class="rek-row">
-        <div class="${paid ? 'rek-paid' : 'rek-unpaid'}">${paid ? '✅' : '⬜'} ${it.name}</div>
-        <div style="text-align:right;">
-          <input type="number" value="${amt}" step="0.01" class="rek-amt-input" oninput="updateItemAmount('${key}', this.value, '${id}')" />
-          <button onclick="togglePaid('${key}')" style="font-size:10px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:2px 8px;cursor:pointer;margin-top:2px;display:block;margin-left:auto;">${paid ? 'Betaald ✓' : 'Merk Betaald'}</button>
+function updateMarginPreview() {
+  const purchase = parseFloat(document.getElementById('pricePurchase').value) || 0;
+  const retail = parseFloat(document.getElementById('priceRetail').value) || 0;
+  const preview = document.getElementById('priceMarginPreview');
+  if (retail <= 0) { preview.style.display = 'none'; return; }
+  const profit = retail - purchase;
+  const margin = profit / retail;
+  document.getElementById('previewProfit').textContent = fmtR(profit);
+  const marginEl = document.getElementById('previewMargin');
+  marginEl.textContent = fmtPct(margin);
+  marginEl.parentElement.className = 'stat' + (margin < 0.4 ? ' margin-low' : '');
+  preview.style.display = 'block';
+}
+
+document.getElementById('updatePriceBtn').addEventListener('click', async () => {
+  const sku = document.getElementById('priceSku').value;
+  const purchase = parseFloat(document.getElementById('pricePurchase').value) || 0;
+  const retail = parseFloat(document.getElementById('priceRetail').value) || 0;
+
+  if (!sku || retail <= 0) {
+    showToast('Please enter a valid retail price', true);
+    return;
+  }
+
+  const btn = document.getElementById('updatePriceBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=updateStock', {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'updateStock',
+        sku: sku,
+        purchase: purchase,
+        retail: retail
+      })
+    });
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message);
+    showToast('Price updated for ' + sku);
+    await loadStock();
+  } catch (err) {
+    showToast('Could not update price: ' + err.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save New Price';
+  }
+});
+
+// ---------- FINANCE DAG PREVIEW ----------
+function updateFinDagPreview() {
+  const opening = parseFloat(document.getElementById('finOpening').value) || 0;
+  const closing = parseFloat(document.getElementById('finKontant').value) || 0;
+  const kaart = parseFloat(document.getElementById('finKaart').value) || 0;
+  const kontant = closing - opening;
+  const totaal = kontant + kaart;
+
+  document.getElementById('finPrevKontant').textContent = fmtR(kontant);
+  document.getElementById('finPrevKaart').textContent = fmtR(kaart);
+  document.getElementById('finPrevTotaal').textContent = fmtR(totaal);
+
+  if (totaal > 0) {
+    document.getElementById('finDagPreview').style.display = 'block';
+    document.getElementById('finBucketPreview').style.display = 'block';
+
+    const day = new Date().getDay(); // 0=Sun,1=Mon,...,5=Fri
+    let remainder = totaal;
+    let blikkie = 0;
+    let xavier = 0;
+
+    if (day === 5) { blikkie = Math.min(2000, remainder); remainder -= blikkie; }
+    if (day === 1) { xavier = Math.min(1000, remainder); remainder -= xavier; }
+
+    const voorraad = Math.round(remainder * 0.7 * 100) / 100;
+    const onvoorsien = Math.round(remainder * 0.3 * 100) / 100;
+
+    document.getElementById('finPrevBlikkie').textContent = fmtR(blikkie);
+    document.getElementById('finPrevXavier').textContent = fmtR(xavier);
+    document.getElementById('finPrevVoorraad').textContent = fmtR(voorraad);
+    document.getElementById('finPrevOnvoorsien').textContent = fmtR(onvoorsien);
+  } else {
+    document.getElementById('finDagPreview').style.display = 'none';
+    document.getElementById('finBucketPreview').style.display = 'none';
+  }
+}
+
+// ---------- FINANCE HISTORY ----------
+async function loadFinanceHistory() {
+  const loading = document.getElementById('finGeskiedenisLoading');
+  const container = document.getElementById('finGeskiedenis');
+  const blikkieEl = document.getElementById('finBlikkieTotaal') || {textContent:''};
+
+  loading.style.display = 'block';
+  container.innerHTML = '';
+
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getFinanceData');
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message || 'Kon nie geskiedenis laai nie');
+
+    const rows = json.data || [];
+
+    if (rows.length > 0) {
+      const lastRow = rows[rows.length - 1];
+      if (lastRow.blikkieKumulatief != null && lastRow.blikkieKumulatief !== '') {
+        blikkieEl.textContent = fmtR(lastRow.blikkieKumulatief);
+      }
+    }
+
+    // Outomaties opening invul van gister se closing
+    if (rows.length > 0) {
+      const lastRow = rows[rows.length - 1];
+      const openingEl = document.getElementById('finOpening');
+      if (openingEl && (!openingEl.value || openingEl.value === '0')) {
+        openingEl.value = lastRow.closing || 0;
+        updateFinDagPreview();
+      }
+    }
+
+    // Voeg vandag by as dit nie al in rows is nie
+    const today = new Date().toLocaleDateString('en-ZA', {day:'2-digit', month:'short', year:'numeric'});
+    const todayOpening = document.getElementById('finOpening').value || 0;
+    const todayInRows = rows.some(r => {
+      if (!r.datum) return false;
+      const d = new Date(r.datum).toLocaleDateString('en-ZA', {day:'2-digit', month:'short', year:'numeric'});
+      return d === today;
+    });
+
+    let todayRow = '';
+    if (!todayInRows && todayOpening > 0) {
+      todayRow = `
+        <div style="border-bottom:1px solid var(--leaf-dim); padding:10px 0; opacity:0.7;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:14px;">${today} <span style="font-size:11px; color:var(--muted);">(oop)</span></span>
+            <span style="font-weight:800; font-size:15px; color:var(--muted);">Nog nie afgesluit</span>
+          </div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">🏦 Opening: <span style="font-weight:700; color:var(--cream);">${fmtR(parseFloat(todayOpening))}</span></div>
         </div>
-      </div>`;
-    }).join('') +
-    `<div class="rek-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px;">
-      <span style="font-weight:700;color:var(--muted);">Subtotaal</span>
-      <span style="font-weight:700;" id="${id}-subtotal">${fmt(tot)}</span>
-    </div></div>`;
+      `;
+    }
+
+    if (rows.length === 0 && !todayRow) {
+      container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:13px; padding:10px;">Geen geskiedenis beskikbaar nie.</div>';
+    } else {
+      const reversed = [...rows].reverse();
+      container.innerHTML = todayRow + reversed.map(r => `
+        <div style="border-bottom:1px solid var(--leaf-dim); padding:10px 0;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:14px;">${r.datum ? new Date(r.datum).toLocaleDateString('en-ZA', {day:'2-digit',month:'short',year:'numeric'}) : ''}</span>
+            <span style="font-weight:800; font-size:15px; color:var(--leaf);">${fmtR(r.totaal || 0)}</span>
+          </div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">🏦 Opening: <span style="font-weight:700; color:var(--cream);">${fmtR(r.opening || 0)}</span> &nbsp;→&nbsp; Closing: <span style="font-weight:700; color:var(--cream);">${fmtR(r.closing || 0)}</span></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-top:6px;">
+            <div style="font-size:14px; color:var(--muted);">💵 Kontant<br><span style="font-weight:700; font-size:15px; color:var(--cream);">${fmtR(r.kontant || 0)}</span></div>
+            <div style="font-size:14px; color:var(--muted);">💳 Kaart<br><span style="font-weight:700; font-size:15px; color:var(--cream);">${fmtR(r.kaart || 0)}</span></div>
+            <div style="font-size:14px; color:var(--muted);">💰 Blikkie<br><span style="font-weight:700; font-size:15px; color:#2E7D4F;">${fmtR(r.blikkie || 0)}</span></div>
+            <div style="font-size:14px; color:var(--muted);">🏪 Voorraad<br><span style="font-weight:700; font-size:15px; color:var(--cream);">${fmtR(r.voorraad || 0)}</span></div>
+            <div style="font-size:14px; color:var(--muted);">🚨 Onvoorsien<br><span style="font-weight:700; font-size:15px; color:var(--cream);">${fmtR(r.onvoorsien || 0)}</span></div>
+            <div style="font-size:14px; color:var(--muted);">👷 Xavier<br><span style="font-weight:700; font-size:15px; color:var(--cream);">${fmtR(r.xavier || 0)}</span></div>
+          </div>
+          ${r.notes ? `<div style="font-size:11px; color:var(--muted); margin-top:4px;">📝 ${r.notes}</div>` : ''}
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    container.innerHTML = '<div style="color:var(--reorder); font-size:13px; padding:10px;">❌ Fout: ' + err.message + '</div>';
+    showToast('Kon nie geskiedenis laai nie: ' + err.message, true);
+  } finally {
+    loading.style.display = 'none';
+  }
 }
 
-function updateItemAmount(name, val, listId) {
-  setCustomAmount(name, parseFloat(val) || 0);
-  recalcGrandTotal();
-  const items = listId === 'rl-suppliers' ? BDATA.suppliers : listId === 'rl-debiet' ? BDATA.debiet : BDATA.gewone;
-  const tot = items.reduce((s,i) => s + getItemAmount(i), 0);
-  const el = document.getElementById(listId + '-subtotal');
-  if (el) el.textContent = fmt(tot);
-}
+document.getElementById('finRefreshGeskiedenis').addEventListener('click', loadFinanceHistory);
 
-function getCurrentBaseTotal() {
-  const all = [...BDATA.suppliers, ...BDATA.debiet, ...BDATA.gewone];
-  return all.reduce((s,i) => s + getItemAmount(i), 0);
-}
+document.getElementById('finSaveDay').addEventListener('click', async () => {
+  const opening = parseFloat(document.getElementById('finOpening').value) || 0;
+  const closing = parseFloat(document.getElementById('finKontant').value) || 0;
+  const kaart = parseFloat(document.getElementById('finKaart').value) || 0;
+  const notes = document.getElementById('finNotes') ? document.getElementById('finNotes').value : '';
 
-function recalcGrandTotal() {
-  const newTotal = getCurrentBaseTotal();
-  const st = getBState();
-  document.getElementById('bg-totale-verplig').textContent = fmt(newTotal);
-  document.getElementById('bg-nodig').textContent = fmt(Math.max(0, newTotal - st.pots.rek));
-  const pct = Math.min(100, (st.pots.rek / newTotal) * 100);
-  document.getElementById('bg-bar').style.width = pct.toFixed(1) + '%';
-  document.getElementById('bg-pct').textContent = pct.toFixed(1) + '% gedek';
-  document.querySelectorAll('.bg-target-label').forEach(el => el.textContent = 'Teiken: ' + fmt(newTotal));
-  mdRecalc();
-}
+  if (closing === 0 && kaart === 0) {
+    showToast('Vul eers Closing Balance en Kaart in', true);
+    return;
+  }
 
-function togglePaid(name) {
-  const st = getBState();
-  if (!st.paid) st.paid = {};
-  st.paid[name] = !st.paid[name];
-  setBState(st);
-  renderBudget();
-}
+  const kontant = closing - opening;
+  const totaal = kontant + kaart;
+  const day = new Date().getDay();
+  let remainder = totaal;
+  let blikkie = 0;
+  let xavier = 0;
 
-function resetMonth() {
-  if (!confirm('Begin nuwe maand? Alle opgeboude bedrae en betaald-merkings word uitgevee.')) return;
-  setBState({ lone:0, pots:{rek:0,sav:0,ond:0,onv:0}, paid:{} });
-  renderBudget();
-  mdRecalc();
-  showToast('🔄 Nuwe maand begin!');
-}
-function clearBudgetData() {
-  if (!confirm('Seker?')) return;
-  localStorage.removeItem(KEYS.budget);
-  renderBudget();
-  mdRecalc();
-  showToast('🗑️ Begroting uitgevee');
-}
+  if (day === 5) { blikkie = Math.min(2000, remainder); remainder -= blikkie; }
+  if (day === 1) { xavier = Math.min(1000, remainder); remainder -= xavier; }
 
-// ══════════════════════════════════════
-// GESKIEDENIS
-// ══════════════════════════════════════
-function loadHistory() {
-  const h = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-  const el = document.getElementById('history-list');
-  if (!h.length) { el.innerHTML = '<div class="empty-state">Geen geskiedenis nie.</div>'; return; }
-  const dn = ['Son','Maan','Din','Woen','Don','Vry','Sat'];
-  el.innerHTML = h.slice(0,30).map((e, i) => {
-    const d = new Date(e.date);
-    const roeteLines = (e.roetes||[]).map(r =>
-      `<div class="history-row"><span>📍 ${r.naam || 'Roete'}</span><span>${fmt(r.kontant)}</span></div>`
-    ).join('');
-    return `<div class="history-entry">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div class="history-date">${(e.dagNaam ? e.dagNaam.slice(0,4) : dn[d.getDay()])} ${d.toLocaleDateString('af-ZA')} ${d.toLocaleTimeString('af-ZA',{hour:'2-digit',minute:'2-digit'})}</div>
-        <button onclick="deleteHistoryEntry(${i})" style="font-size:11px;background:none;border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:2px 8px;cursor:pointer;">✕ Verwyder</button>
-      </div>
-      ${roeteLines}
-      <div class="history-row history-total" style="margin-top:4px;"><span>💵 Kontant Totaal</span><span>${fmt(e.tot)}</span></div>
-      ${e.nt ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;">${e.nt}</div>` : ''}
-    </div>`;
-  }).join('');
-}
+  const voorraad = Math.round(remainder * 0.7 * 100) / 100;
+  const onvoorsien = Math.round(remainder * 0.3 * 100) / 100;
 
-function deleteHistoryEntry(index) {
-  if (!confirm('Verwyder hierdie inskrywing?\n\nLW: dit verwyder net plaaslik. Die inskrywing bly in die Google Sheet (om dit ook daar te verwyder, skrap die ry self in die Sheet).')) return;
-  const h = JSON.parse(localStorage.getItem(KEYS.dag) || '[]');
-  h.splice(index, 1);
-  localStorage.setItem(KEYS.dag, JSON.stringify(h));
-  loadHistory();
-  renderWeekOpsomming();
-  showToast('✅ Inskrywing verwyder (plaaslik)');
-}
+  const selectedDatum = document.getElementById('finDatum') ? document.getElementById('finDatum').value : '';
+  const datumToUse = selectedDatum || new Date().toISOString().split('T')[0];
+  const dayToUse = selectedDatum ? new Date(selectedDatum + 'T12:00:00').getDay() : new Date().getDay();
+  
+  // Herbereken buckets gebaseer op geselekteerde datum
+  let remainder2 = totaal;
+  let blikkie2 = 0;
+  let xavier2 = 0;
+  if (dayToUse === 5) { blikkie2 = Math.min(2000, remainder2); remainder2 -= blikkie2; }
+  if (dayToUse === 1) { xavier2 = Math.min(1000, remainder2); remainder2 -= xavier2; }
+  const voorraad2 = Math.round(remainder2 * 0.7 * 100) / 100;
+  const onvoorsien2 = Math.round(remainder2 * 0.3 * 100) / 100;
 
-function clearDagData() {
-  if (!confirm('Seker?')) return;
-  localStorage.removeItem(KEYS.dag);
-  loadHistory();
-  renderWeekOpsomming();
-  showToast('🗑️ Geskiedenis uitgevee');
-}
+  const payload = {
+    opening, closing, kontant, kaart, totaal,
+    blikkie: blikkie2, xavier: xavier2, voorraad: voorraad2, onvoorsien: onvoorsien2, notes,
+    datum: datumToUse
+  };
 
-function loadMaandagHistory() {
-  const h = JSON.parse(localStorage.getItem(KEYS.maandag) || '[]');
-  const el = document.getElementById('maandag-history-list');
-  if (!h.length) { el.innerHTML = '<div class="empty-state">Geen geskiedenis nie.</div>'; return; }
-  const dn = ['Son','Maan','Din','Woen','Don','Vry','Sat'];
-  el.innerHTML = h.slice(0,20).map((e, i) => {
-    const d = new Date(e.date);
-    const supLines = Object.entries(e.suppliers||{}).filter(([,v]) => v>0)
-      .map(([n,v]) => {
-        const fakture = (e.supplierFakture && e.supplierFakture[n]) || [];
-        const faktuurDetail = fakture.filter(f => f.amt > 0).map(f =>
-          `<div class="history-row" style="padding-left:14px;font-size:12px;color:var(--muted);"><span>${f.paid ? '✅' : '⬜'} ${f.nr ? f.nr : '(geen nr)'}</span><span>${fmt(f.amt)}</span></div>`
-        ).join('');
-        return `<div class="history-row"><span>📦 ${n}</span><span style="color:var(--danger);">−${fmt(v)}</span></div>${faktuurDetail}`;
-      }).join('');
-    return `<div class="history-entry">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div class="history-date">${dn[d.getDay()]} ${d.toLocaleDateString('af-ZA')}</div>
-        <button onclick="deleteMaandagEntry(${i})" style="font-size:11px;background:none;border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:2px 8px;cursor:pointer;">✕ Verwyder</button>
-      </div>
-      <div class="history-row"><span>🚚 Week ingevorder</span><span>${fmt(e.weekTot)}</span></div>
-      ${e.shop2shop > 0 ? `<div class="history-row"><span>📱 Shop2Shop</span><span>${fmt(e.shop2shop)}</span></div>` : ''}
-      <div class="history-row"><span>👷 Lone</span><span style="color:var(--purple);">−${fmt(e.lone)}</span></div>
-      <div class="history-row"><span>🌾 New Harvest</span><span style="color:var(--accent2);">−${fmt(e.harvest)}</span></div>
-      ${((e.harvestFakture||[]).filter(f => f.amt > 0).map(f =>
-        `<div class="history-row" style="padding-left:14px;font-size:12px;color:var(--muted);"><span>${f.paid ? '✅' : '⬜'} ${f.nr ? f.nr : '(geen nr)'}</span><span>${fmt(f.amt)}</span></div>`
-      ).join(''))}
-      <div class="history-row"><span>🏦 Bank inbetaling</span><span>${fmt(e.bankOut)}</span></div>
-      ${supLines}
-      <div class="history-row history-total" style="margin-top:4px;"><span>Beskikbaar</span><span>${fmt(e.beskikbaar)}</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:5px;font-size:12px;color:var(--muted);">
-        <span>📋 Rekeninge: ${fmt(e.bRek)}</span>
-        <span>💰 Savings: ${fmt(e.bSav)}</span>
-        <span>🔧 Onderhoud: ${fmt(e.bOnd)}</span>
-        <span>🚨 Onvoorsien: ${fmt(e.bOnv)}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
+  try {
+    showToast('Besig om te stoor...');
+    const res = await fetch(SCRIPT_URL + '?action=logFinanceDay', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      showToast('✅ Dag gestoor!');
+      loadFinanceHistory();
+    } else {
+      showToast('❌ Fout: ' + (json.message || 'onbekend'), true);
+    }
+  } catch (err) {
+    showToast('❌ Fout: ' + err.message, true);
+  }
+});
 
-function deleteMaandagEntry(index) {
-  if (!confirm('Verwyder hierdie Maandag afrekening? Die bedrae word ook uit die Begroting se buckets teruggetrek.\n\nLW: dit verwyder net plaaslik. Die inskrywing bly in die Google Sheet.')) return;
-  const h = JSON.parse(localStorage.getItem(KEYS.maandag) || '[]');
-  const entry = h[index];
-  if (!entry) return;
-
-  // Trek die bedrae terug uit die Begroting buckets en lone totaal
-  const st = getBState();
-  st.pots.rek = Math.max(0, st.pots.rek - (entry.bRek || 0));
-  st.pots.sav = Math.max(0, st.pots.sav - (entry.bSav || 0));
-  st.pots.ond = Math.max(0, st.pots.ond - (entry.bOnd || 0));
-  st.pots.onv = Math.max(0, st.pots.onv - (entry.bOnv || 0));
-  st.lone = Math.max(0, st.lone - (entry.lone || 0));
-  setBState(st);
-
-  h.splice(index, 1);
-  localStorage.setItem(KEYS.maandag, JSON.stringify(h));
-  loadMaandagHistory();
-  renderBudget();
-  mdRecalc();
-  showToast('✅ Maandag inskrywing verwyder, buckets aangepas');
-}
-
-function clearMaandagData() {
-  if (!confirm('Seker? Dit sal ook die Begroting se buckets terugstel na R0.')) return;
-  localStorage.removeItem(KEYS.maandag);
-  const st = getBState();
-  st.pots = { rek:0, sav:0, ond:0, onv:0 };
-  st.lone = 0;
-  setBState(st);
-  loadMaandagHistory();
-  renderBudget();
-  mdRecalc();
-  showToast('🗑️ Maandag geskiedenis uitgevee, buckets teruggestel');
-}
-
-// ══════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════
-function fmt(n) { return 'R' + (n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-function showToast(m) {
-  const t = document.getElementById('toast');
-  t.textContent = m; t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 2500);
-}
+// ---------- Init ----------
+loadStock();
 </script>
+
 </body>
 </html>
